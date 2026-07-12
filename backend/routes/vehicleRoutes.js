@@ -1,20 +1,57 @@
 const express = require('express');
 const router = express.Router();
 const vehicleController = require('../controllers/vehicleController');
+const authMiddleware = require('../middleware/authMiddleware');
+const authorize = require('../middleware/roleMiddleware');
+const validate = require('../middleware/validate');
+const { ROLES } = require('../utils/constants');
+const {
+  createVehicleSchema,
+  updateVehicleSchema,
+  vehicleIdSchema,
+} = require('../validators/vehicle.validator');
 
-// GET / - list all - Anand Rawat to implement
-router.get('/', vehicleController.getVehicles);
+// All vehicle routes require authentication
+router.use(authMiddleware);
 
-// GET /:id - get details - Anand Rawat to implement
-router.get('/:id', vehicleController.getVehicleById);
+// GET /api/v1/vehicles - list all (Admin, Fleet Manager, Safety Officer)
+router.get(
+  '/',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.SAFETY_OFFICER),
+  vehicleController.getVehicles
+);
 
-// POST / - create - Anand Rawat to implement
-router.post('/', vehicleController.createVehicle);
+// GET /api/v1/vehicles/:id - get details (Admin, Fleet Manager, Safety Officer)
+router.get(
+  '/:id',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.SAFETY_OFFICER),
+  validate(vehicleIdSchema, 'params'),
+  vehicleController.getVehicleById
+);
 
-// PUT /:id - update - Anand Rawat to implement
-router.put('/:id', vehicleController.updateVehicle);
+// POST /api/v1/vehicles - create (Admin only)
+router.post(
+  '/',
+  authorize(ROLES.ADMIN),
+  validate(createVehicleSchema),
+  vehicleController.createVehicle
+);
 
-// DELETE /:id - delete - Anand Rawat to implement
-router.delete('/:id', vehicleController.deleteVehicle);
+// PUT /api/v1/vehicles/:id - update (Admin, Fleet Manager)
+router.put(
+  '/:id',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER),
+  validate(vehicleIdSchema, 'params'),
+  validate(updateVehicleSchema),
+  vehicleController.updateVehicle
+);
+
+// DELETE /api/v1/vehicles/:id - delete (Admin only)
+router.delete(
+  '/:id',
+  authorize(ROLES.ADMIN),
+  validate(vehicleIdSchema, 'params'),
+  vehicleController.deleteVehicle
+);
 
 module.exports = router;
