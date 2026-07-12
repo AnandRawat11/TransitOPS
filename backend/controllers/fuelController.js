@@ -1,18 +1,95 @@
-// TODO: implement by Saurav Shandilya
+const FuelLog = require('../models/FuelLog');
+const Vehicle = require('../models/Vehicle');
 
+// @desc    Get all fuel logs
+// @route   GET /api/fuel
+// @access  Private
 const getFuelLogs = async (req, res, next) => {
   try {
-    // TODO: implement
-    res.status(200).json({ success: true, message: 'getFuelLogs not implemented yet' });
+    const { vehicleId } = req.query;
+    let query = {};
+    if (vehicleId) {
+      query.vehicle = vehicleId;
+    }
+
+    const logs = await FuelLog.find(query)
+      .populate('vehicle', 'registrationNumber name type')
+      .populate('trip', 'source destination status')
+      .sort({ date: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: logs.length,
+      data: logs,
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// @desc    Create a new fuel log
+// @route   POST /api/fuel
+// @access  Private (Driver / FleetManager)
 const createFuelLog = async (req, res, next) => {
   try {
-    // TODO: implement
-    res.status(200).json({ success: true, message: 'createFuelLog not implemented yet' });
+    const { vehicle, trip, liters, cost, date } = req.body;
+
+    if (!vehicle || !liters || !cost || !date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide vehicle, liters, cost, and date.',
+      });
+    }
+
+    // Verify vehicle exists
+    const vehicleExists = await Vehicle.findById(vehicle);
+    if (!vehicleExists) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vehicle not found',
+      });
+    }
+
+    const newLog = await FuelLog.create({
+      vehicle,
+      trip: trip || undefined,
+      liters,
+      cost,
+      date,
+    });
+
+    const populatedLog = await FuelLog.findById(newLog._id)
+      .populate('vehicle', 'registrationNumber name type')
+      .populate('trip', 'source destination status');
+
+    res.status(201).json({
+      success: true,
+      data: populatedLog,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete a fuel log entry
+// @route   DELETE /api/fuel/:id
+// @access  Private (FleetManager only)
+const deleteFuelLog = async (req, res, next) => {
+  try {
+    const log = await FuelLog.findById(req.params.id);
+    if (!log) {
+      return res.status(404).json({
+        success: false,
+        message: 'Fuel log entry not found',
+      });
+    }
+
+    await log.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Fuel log entry removed successfully',
+    });
   } catch (error) {
     next(error);
   }
@@ -21,4 +98,5 @@ const createFuelLog = async (req, res, next) => {
 module.exports = {
   getFuelLogs,
   createFuelLog,
+  deleteFuelLog,
 };

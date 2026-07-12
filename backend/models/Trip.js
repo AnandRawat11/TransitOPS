@@ -43,6 +43,10 @@ const TripSchema = new mongoose.Schema(
     completedAt: {
       type: Date,
     },
+    revenue: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
