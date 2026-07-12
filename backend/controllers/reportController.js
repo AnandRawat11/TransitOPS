@@ -1,6 +1,6 @@
 const Vehicle = require('../models/Vehicle');
 const FuelLog = require('../models/FuelLog');
-const MaintenanceLog = require('../models/MaintenanceLog');
+const Maintenance = require('../models/Maintenance');
 const Trip = require('../models/Trip');
 
 // Helper to get general stats
@@ -19,7 +19,7 @@ const getReportsData = async () => {
   ]);
 
   // 2. Maintenance cost
-  const maintenanceAgg = await MaintenanceLog.aggregate([
+  const maintenanceAgg = await Maintenance.aggregate([
     {
       $group: {
         _id: '$vehicle',

@@ -30,15 +30,15 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const data = await authApi.login(email, password);
-      if (data.success && data.token) {
-        setToken(data.token);
-        setUser(data.user);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+      const response = await authApi.login(email, password);
+      if (response.success && response.data?.token) {
+        setToken(response.data.token);
+        setUser(response.data.user);
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         return { success: true };
       } else {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(response.message || 'Login failed');
       }
     } catch (error) {
       console.error('Login error:', error);

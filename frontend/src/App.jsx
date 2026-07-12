@@ -29,6 +29,18 @@ import CreateMaintenancePage from './features/maintenance/pages/CreateMaintenanc
 import FuelLogsPage from './features/fuel/pages/FuelLogsPage';
 import ExpenseListPage from './features/expenses/pages/ExpenseListPage';
 
+// AI Pages
+import AiDashboardPage from './features/ai/pages/AiDashboardPage';
+import CopilotPage from './features/ai/pages/CopilotPage';
+
+// Analytics Pages
+import ExecutiveDashboardPage from './features/analytics/pages/ExecutiveDashboardPage';
+import ReportBuilderPage from './features/analytics/pages/ReportBuilderPage';
+
+// Admin & Activity Pages
+import ActivityTimelinePage from './features/activity/pages/ActivityTimelinePage';
+import UserManagementPage from './features/admin/pages/UserManagementPage';
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient({
@@ -94,6 +106,24 @@ const App = () => {
               <Route path="drivers" element={<DriverListPage />} />
               <Route path="fuel-expenses" element={<FuelExpensePage />} />
               <Route path="reports" element={<ReportsPage />} />
+
+              {/* AI Routes */}
+              <Route path="ai">
+                <Route index element={<AiDashboardPage />} />
+                <Route path="copilot" element={<CopilotPage />} />
+              </Route>
+
+              {/* Analytics Routes */}
+              <Route path="analytics">
+                <Route index element={<ExecutiveDashboardPage />} />
+                <Route path="reports" element={<ReportBuilderPage />} />
+              </Route>
+
+              {/* Admin Routes */}
+              <Route path="admin">
+                <Route path="users" element={<UserManagementPage />} />
+                <Route path="activity" element={<ActivityTimelinePage />} />
+              </Route>
 
               {/* Fallback to dashboard */}
               <Route path="*" element={<Navigate to="/" replace />} />

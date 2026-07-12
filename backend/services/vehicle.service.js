@@ -6,6 +6,7 @@
  */
 const Vehicle = require('../models/Vehicle');
 const AppError = require('../utils/AppError');
+const eventBus = require('../utils/eventBus');
 
 /**
  * Get a paginated list of vehicles with robust filtering.
@@ -112,7 +113,15 @@ const createVehicle = async (data) => {
     statusHistory: [{ status: data.currentStatus || 'AVAILABLE' }]
   };
 
-  return await Vehicle.create(vehicleData);
+  const newVehicle = await Vehicle.create(vehicleData);
+  
+  eventBus.emit('VEHICLE_CREATED', {
+    userId: vehicleData.createdBy || null,
+    vehicleId: newVehicle._id,
+    vehicleNumber: newVehicle.registrationNumber,
+  });
+
+  return newVehicle;
 };
 
 /**

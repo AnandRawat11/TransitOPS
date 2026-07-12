@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { User, Bell } from 'lucide-react';
+import { User } from 'lucide-react';
+import NotificationBell from '../../features/notifications/components/NotificationBell';
 
 const Topbar = () => {
   const { user } = useAuth();
@@ -15,10 +16,7 @@ const Topbar = () => {
       {/* Action / User Panel */}
       <div className="flex items-center space-x-6">
         {/* Notifications */}
-        <button className="relative rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-brand-500 ring-2 ring-slate-900"></span>
-        </button>
+        <NotificationBell />
 
         {/* User Card */}
         <div className="flex items-center space-x-3 border-l border-slate-800 pl-6">

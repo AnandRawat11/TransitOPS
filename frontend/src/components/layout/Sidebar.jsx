@@ -10,6 +10,10 @@ import {
   Fuel,
   BarChart3,
   LogOut,
+  Sparkles,
+  PieChart,
+  Users,
+  Activity,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -59,6 +63,36 @@ const Sidebar = () => {
       label: 'Reports',
       icon: BarChart3,
       allowedRoles: ['FleetManager', 'FinancialAnalyst'],
+    },
+    {
+      path: '/ai',
+      label: 'AI Intelligence',
+      icon: Sparkles,
+      allowedRoles: ['FleetManager', 'FinancialAnalyst', 'Admin'],
+    },
+    {
+      path: '/analytics',
+      label: 'BI Dashboard',
+      icon: PieChart,
+      allowedRoles: ['FleetManager', 'FinancialAnalyst', 'Admin'],
+    },
+    {
+      path: '/analytics/reports',
+      label: 'Report Builder',
+      icon: BarChart3,
+      allowedRoles: ['FleetManager', 'FinancialAnalyst', 'Admin'],
+    },
+    {
+      path: '/admin/users',
+      label: 'User Management',
+      icon: Users,
+      allowedRoles: ['Admin'],
+    },
+    {
+      path: '/admin/activity',
+      label: 'Activity Log',
+      icon: Activity,
+      allowedRoles: ['Admin'],
     },
   ];
 

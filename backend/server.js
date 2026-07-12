@@ -58,6 +58,11 @@ const maintenanceRoutes = require('./routes/maintenanceRoutes');
 const fuelRoutes = require('./routes/fuelRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const aiRoutes = require('./routes/aiRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const activityRoutes = require('./routes/activityRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const API_PREFIX = '/api/v1';
 
@@ -70,6 +75,11 @@ app.use(`${API_PREFIX}/maintenance`, maintenanceRoutes);
 app.use(`${API_PREFIX}/fuel`, fuelRoutes);
 app.use(`${API_PREFIX}/expenses`, expenseRoutes);
 app.use(`${API_PREFIX}/reports`, reportRoutes);
+app.use(`${API_PREFIX}/ai`, aiRoutes);
+app.use(`${API_PREFIX}/analytics`, analyticsRoutes);
+app.use(`${API_PREFIX}/notifications`, notificationRoutes);
+app.use(`${API_PREFIX}/activity`, activityRoutes);
+app.use(`${API_PREFIX}/admin`, adminRoutes);
 
 // ──────────────────────────────────────
 // Base & Health Routes

@@ -10,6 +10,7 @@
 const authService = require('../services/auth.service');
 const { sendSuccess } = require('../utils/apiResponse');
 const catchAsync = require('../utils/catchAsync');
+const eventBus = require('../utils/eventBus');
 
 /**
  * POST /api/v1/auth/register
@@ -32,6 +33,8 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const { user, token } = await authService.loginUser(email, password);
   
+  eventBus.emit('USER_LOGIN', { userId: user._id });
+
   sendSuccess(res, 200, 'Login successful', {
     token,
     user,

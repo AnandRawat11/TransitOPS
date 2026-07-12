@@ -1,4 +1,4 @@
-import api from '../../../services/api';
+import api from '@/api/axios';
 
 export const fuelApi = {
   getFuelLogs: async (params) => {
