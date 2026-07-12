@@ -195,4 +195,4 @@ MaintenanceSchema.set('toJSON', {
   },
 });
 
-module.exports = mongoose.model('MaintenanceLog', MaintenanceSchema);
+module.exports = mongoose.model('Maintenance', MaintenanceSchema);

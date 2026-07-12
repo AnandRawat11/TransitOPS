@@ -4,8 +4,10 @@
 const Trip = require('../models/Trip');
 const User = require('../models/User');
 const Vehicle = require('../models/Vehicle');
+const Driver = require('../models/Driver');
 const vehicleService = require('./vehicle.service');
 const AppError = require('../utils/AppError');
+const { ROLES } = require('../utils/constants');
 
 // Generates TRP-YYYYMMDD-XXXX
 const generateTripNumber = async () => {
@@ -23,10 +25,21 @@ const generateTripNumber = async () => {
 const validateDriverAvailability = async (driverId, excludeTripId = null) => {
   if (!driverId) return;
 
-  const driver = await User.findById(driverId);
+  const driver = await Driver.findById(driverId);
   if (!driver) throw new AppError('Assigned driver not found', 404);
-  if (driver.role !== 'DRIVER') throw new AppError('Assigned user is not a DRIVER', 400);
-  if (!driver.isActive) throw new AppError('Assigned driver is not active', 400);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (driver.status !== 'Available') {
+    throw new AppError(`Assigned driver status is not Available (currently ${driver.status})`, 400);
+  }
+  if (driver.licenseExpiryDate && driver.licenseExpiryDate < today) {
+    throw new AppError('Assigned driver license has expired', 400);
+  }
+  if (driver.status === 'Suspended') {
+    throw new AppError('Assigned driver is suspended', 400);
+  }
 
   // Check if driver has an active trip
   const activeTripQuery = {
@@ -216,6 +229,9 @@ const updateTripStatus = async (id, newStatus, notes, updaterId) => {
     if (trip.vehicleId) {
       await vehicleService.updateVehicleStatus(trip.vehicleId, 'ON_TRIP');
     }
+    if (trip.driverId) {
+      await Driver.findByIdAndUpdate(trip.driverId, { status: 'On Trip' });
+    }
   }
 
   if (newStatus === 'COMPLETED') {
@@ -229,13 +245,20 @@ const updateTripStatus = async (id, newStatus, notes, updaterId) => {
         await vehicleService.updateVehicle(trip.vehicleId, { odometer: trip.endOdometer });
       }
     }
+    if (trip.driverId) {
+      await Driver.findByIdAndUpdate(trip.driverId, { status: 'Available' });
+    }
   }
 
   if (newStatus === 'CANCELLED') {
     trip.cancelledAt = new Date();
-    if (trip.vehicleId && currentStatus === 'IN_PROGRESS') {
-      // If it was in progress, release the vehicle
-      await vehicleService.updateVehicleStatus(trip.vehicleId, 'AVAILABLE');
+    if (currentStatus === 'IN_PROGRESS') {
+      if (trip.vehicleId) {
+        await vehicleService.updateVehicleStatus(trip.vehicleId, 'AVAILABLE');
+      }
+      if (trip.driverId) {
+        await Driver.findByIdAndUpdate(trip.driverId, { status: 'Available' });
+      }
     }
   }
 

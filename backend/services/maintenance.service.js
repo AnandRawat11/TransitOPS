@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Vehicle = require('../models/Vehicle');
 const vehicleService = require('./vehicle.service');
 const AppError = require('../utils/AppError');
+const { ROLES } = require('../utils/constants');
 
 const generateMaintenanceNumber = async () => {
   const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
@@ -19,8 +20,8 @@ const validateTechnician = async (technicianId) => {
 
   const tech = await User.findById(technicianId);
   if (!tech) throw new AppError('Assigned technician not found', 404);
-  if (tech.role !== 'TECHNICIAN' && tech.role !== 'FLEET_MANAGER') {
-    throw new AppError('Assigned user must be a TECHNICIAN or FLEET_MANAGER', 400);
+  if (tech.role !== ROLES.TECHNICIAN && tech.role !== ROLES.FLEET_MANAGER) {
+    throw new AppError(`Assigned user must be a ${ROLES.TECHNICIAN} or ${ROLES.FLEET_MANAGER}`, 400);
   }
   if (!tech.isActive) throw new AppError('Assigned technician is not active', 400);
 };

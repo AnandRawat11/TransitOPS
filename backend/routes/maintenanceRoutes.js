@@ -74,21 +74,13 @@ router.delete(
   validate(maintenanceIdSchema, 'params'),
   maintenanceController.deleteMaintenance
 );
-// GET / - list all
-router.get('/', maintenanceController.getMaintenanceLogs);
 
-// GET /:id - get log by id
-router.get('/:id', maintenanceController.getMaintenanceLogById);
-
-// POST / - create
-router.post('/', maintenanceController.createMaintenanceLog);
-
-// PUT /:id - update log
-router.put('/:id', maintenanceController.updateMaintenanceLog);
-
-// DELETE /:id - delete log
-router.delete('/:id', maintenanceController.deleteMaintenanceLog);
-// PUT /:id/close - close maintenance
-router.put('/:id/close', maintenanceController.closeMaintenance);
+// PUT /api/v1/maintenance/:id/close - Admin, Fleet Manager, Technician
+router.put(
+  '/:id/close',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.TECHNICIAN),
+  validate(maintenanceIdSchema, 'params'),
+  maintenanceController.closeMaintenance
+);
 
 module.exports = router;

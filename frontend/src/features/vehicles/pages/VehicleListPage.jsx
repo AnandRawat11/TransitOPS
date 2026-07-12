@@ -11,10 +11,10 @@ import { Search, Plus, Filter, ChevronLeft, ChevronRight, Truck } from 'lucide-r
 import { Link } from 'react-router-dom';
 
 const statusColors = {
-  AVAILABLE: 'bg-emerald-100 text-emerald-800',
-  ON_TRIP: 'bg-blue-100 text-blue-800',
-  MAINTENANCE: 'bg-orange-100 text-orange-800',
-  RETIRED: 'bg-slate-100 text-slate-800',
+  AVAILABLE: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+  ON_TRIP: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+  MAINTENANCE: 'bg-orange-500/10 text-orange-400 border border-orange-500/20',
+  RETIRED: 'bg-slate-500/10 text-slate-400 border border-slate-500/20',
 };
 
 const VehicleListPage = () => {
@@ -25,11 +25,11 @@ const VehicleListPage = () => {
   const { data, isLoading } = useVehicles({ page, limit: 10, search });
 
   return (
-    <div className="p-6 space-y-6 bg-slate-50 min-h-screen">
+    <div className="p-1 space-y-6 text-slate-200">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Vehicle Directory</h1>
-          <p className="text-slate-500">Manage your entire fleet and view status.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Vehicle Directory</h1>
+          <p className="text-slate-400">Manage your entire fleet and view status.</p>
         </div>
         <Button asChild>
           <Link to="/vehicles/new">

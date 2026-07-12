@@ -10,23 +10,21 @@ const getKpis = async (req, res) => {
     const { type, status, region } = req.query;
 
     // Build match queries based on filters
-    const vehicleMatch = {};
+    const vehicleMatch = { isActive: true };
     const tripMatch = {};
     const driverMatch = {};
 
     if (region) {
       vehicleMatch.region = region;
-      // Assuming trips have origin/destination or region, but if not, we can ignore or match if available.
-      // For drivers:
       driverMatch.region = region;
     }
     
     if (type) {
-      vehicleMatch.type = type;
+      vehicleMatch.vehicleType = type;
     }
     
     if (status) {
-      vehicleMatch.status = status;
+      vehicleMatch.currentStatus = status;
     }
 
     // Vehicle KPIs using aggregation
@@ -36,16 +34,16 @@ const getKpis = async (req, res) => {
         $group: {
           _id: null,
           activeVehicles: {
-            $sum: { $cond: [{ $ne: ['$status', 'Retired'] }, 1, 0] }
+            $sum: { $cond: [{ $ne: ['$currentStatus', 'RETIRED'] }, 1, 0] }
           },
           availableVehicles: {
-            $sum: { $cond: [{ $eq: ['$status', 'Available'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ['$currentStatus', 'AVAILABLE'] }, 1, 0] }
           },
           vehiclesInMaintenance: {
-            $sum: { $cond: [{ $eq: ['$status', 'Maintenance'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ['$currentStatus', 'MAINTENANCE'] }, 1, 0] }
           },
           vehiclesOnTrip: {
-            $sum: { $cond: [{ $eq: ['$status', 'On Trip'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ['$currentStatus', 'ON_TRIP'] }, 1, 0] }
           }
         }
       }
@@ -65,10 +63,10 @@ const getKpis = async (req, res) => {
         $group: {
           _id: null,
           activeTrips: {
-            $sum: { $cond: [{ $eq: ['$status', 'Active'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ['$tripStatus', 'IN_PROGRESS'] }, 1, 0] }
           },
           pendingTrips: {
-            $sum: { $cond: [{ $eq: ['$status', 'Pending'] }, 1, 0] }
+            $sum: { $cond: [{ $in: ['$tripStatus', ['PLANNED', 'ASSIGNED']] }, 1, 0] }
           }
         }
       }
@@ -97,7 +95,6 @@ const getKpis = async (req, res) => {
     };
 
     // Calculate Fleet Utilization
-    // (number of vehicles with status On Trip / number of non-retired vehicles) * 100
     let fleetUtilization = 0;
     if (vStats.activeVehicles > 0) {
       fleetUtilization = (vStats.vehiclesOnTrip / vStats.activeVehicles) * 100;
@@ -122,11 +119,6 @@ const getKpis = async (req, res) => {
   }
 };
 
-module.exports = {
-  getKpis,
-/**
- * dashboardController.js - Dashboard endpoints for TransitOps.
- */
 const vehicleService = require('../services/vehicle.service');
 const { sendSuccess } = require('../utils/apiResponse');
 const catchAsync = require('../utils/catchAsync');
@@ -150,6 +142,7 @@ const getAnalytics = catchAsync(async (req, res) => {
 });
 
 module.exports = {
+  getKpis,
   getSummary,
   getAnalytics
 };

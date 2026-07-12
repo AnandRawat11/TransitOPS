@@ -16,11 +16,11 @@ const VehicleDashboard = () => {
   }
 
   return (
-    <div className="p-6 space-y-6 bg-slate-50 min-h-screen">
+    <div className="p-1 space-y-6 text-slate-200">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Fleet Dashboard</h1>
-          <p className="text-slate-500">Real-time overview of your transport operations.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Fleet Dashboard</h1>
+          <p className="text-slate-400">Real-time overview of your transport operations.</p>
         </div>
       </div>
 
@@ -30,10 +30,10 @@ const VehicleDashboard = () => {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-sm font-medium">Total Fleet</CardTitle>
-              <Truck className="w-4 h-4 text-slate-500" />
+              <Truck className="w-4 h-4 text-slate-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{summary?.total || 0}</div>
+              <div className="text-2xl font-bold text-white">{summary?.total || 0}</div>
               <p className="text-xs text-slate-500">Active registered vehicles</p>
             </CardContent>
           </Card>
@@ -43,10 +43,10 @@ const VehicleDashboard = () => {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-sm font-medium">Available</CardTitle>
-              <CheckCircle className="w-4 h-4 text-emerald-500" />
+              <CheckCircle className="w-4 h-4 text-emerald-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-600">{summary?.available || 0}</div>
+              <div className="text-2xl font-bold text-emerald-400">{summary?.available || 0}</div>
               <p className="text-xs text-slate-500">Ready for dispatch</p>
             </CardContent>
           </Card>
@@ -56,10 +56,10 @@ const VehicleDashboard = () => {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-sm font-medium">On Trip</CardTitle>
-              <Activity className="w-4 h-4 text-blue-500" />
+              <Activity className="w-4 h-4 text-blue-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{summary?.onTrip || 0}</div>
+              <div className="text-2xl font-bold text-blue-400">{summary?.onTrip || 0}</div>
               <p className="text-xs text-slate-500">Currently deployed</p>
             </CardContent>
           </Card>
@@ -69,10 +69,10 @@ const VehicleDashboard = () => {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-sm font-medium">Maintenance</CardTitle>
-              <Wrench className="w-4 h-4 text-orange-500" />
+              <Wrench className="w-4 h-4 text-orange-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{summary?.maintenance || 0}</div>
+              <div className="text-2xl font-bold text-orange-400">{summary?.maintenance || 0}</div>
               <p className="text-xs text-slate-500">In garage / repair</p>
             </CardContent>
           </Card>
@@ -80,7 +80,7 @@ const VehicleDashboard = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 hover:shadow-md transition-shadow">
+        <Card className="col-span-4 hover:shadow-md transition-shadow min-w-0">
           <CardHeader>
             <CardTitle>Fleet Distribution by Region</CardTitle>
             <CardDescription>Number of vehicles assigned to each operating region.</CardDescription>
@@ -88,16 +88,20 @@ const VehicleDashboard = () => {
           <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analytics?.regionDistribution || []}>
-                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}/>
+                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  cursor={{ fill: '#1e293b' }} 
+                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px' }}
+                  labelClassName="text-slate-200 font-bold"
+                />
                 <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 hover:shadow-md transition-shadow">
+        <Card className="col-span-3 hover:shadow-md transition-shadow min-w-0">
           <CardHeader>
             <CardTitle>Vehicle Types</CardTitle>
             <CardDescription>Composition of the fleet.</CardDescription>
@@ -118,7 +122,9 @@ const VehicleDashboard = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>

@@ -219,7 +219,7 @@ const ReportsPage = () => {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Chart 1: Stacked Operational Cost */}
-          <div className="rounded-xl border border-slate-800 bg-slate-900/20 p-6">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/20 p-6 min-w-0">
             <div className="mb-4">
               <h3 className="text-lg font-bold text-white">Operational Cost Analysis</h3>
               <p className="text-xs text-slate-400">Total expenditure by vehicle ($ Fuel vs. $ Maintenance)</p>
@@ -246,7 +246,7 @@ const ReportsPage = () => {
           </div>
 
           {/* Chart 2: Fuel Efficiency Bar Chart */}
-          <div className="rounded-xl border border-slate-800 bg-slate-900/20 p-6">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/20 p-6 min-w-0">
             <div className="mb-4">
               <h3 className="text-lg font-bold text-white">Fuel Yield & Efficiency</h3>
               <p className="text-xs text-slate-400">Average actual distance covered per liter of fuel (km/L)</p>

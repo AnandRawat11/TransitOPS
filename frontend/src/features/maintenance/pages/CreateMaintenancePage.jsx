@@ -65,16 +65,16 @@ const CreateMaintenancePage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="p-1 max-w-4xl mx-auto space-y-6 text-slate-200">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Log Maintenance</h1>
-        <p className="text-gray-500 mt-1">Schedule or report a new vehicle repair job.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-white">Log Maintenance</h1>
+        <p className="text-slate-400 mt-1">Schedule or report a new vehicle repair job.</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Wrench className="h-5 w-5 mr-2 text-blue-600" />
+            <Wrench className="h-5 w-5 mr-2 text-blue-400" />
             Maintenance Details
           </CardTitle>
         </CardHeader>
@@ -82,7 +82,7 @@ const CreateMaintenancePage = () => {
           <CardContent className="space-y-6">
             
             {createMaintenance.isError && (
-              <div className="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-lg flex items-center">
+              <div className="bg-rose-950/20 border border-rose-900/50 text-rose-400 p-4 rounded-lg flex items-center">
                 <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
                 <p className="text-sm">{createMaintenance.error?.response?.data?.message || 'Failed to log maintenance.'}</p>
               </div>
@@ -93,12 +93,12 @@ const CreateMaintenancePage = () => {
               <div className="space-y-2">
                 <Label htmlFor="vehicleId">Vehicle *</Label>
                 <Select onValueChange={(val) => setValue('vehicleId', val)}>
-                  <SelectTrigger className={errors.vehicleId ? 'border-rose-500' : ''}>
+                  <SelectTrigger className={errors.vehicleId ? 'border-rose-500 bg-slate-900' : 'bg-slate-900 border-slate-700'}>
                     <SelectValue placeholder={isLoadingMetadata ? "Loading..." : "Select a vehicle"} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
                     {vehicles.map(v => (
-                      <SelectItem key={v.id} value={v.id}>{v.registrationNumber} - {v.vehicleName}</SelectItem>
+                      <SelectItem key={v.id} value={v.id} className="hover:bg-slate-800 focus:bg-slate-800">{v.registrationNumber} - {v.vehicleName}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -108,14 +108,14 @@ const CreateMaintenancePage = () => {
               <div className="space-y-2">
                 <Label htmlFor="maintenanceType">Maintenance Type *</Label>
                 <Select defaultValue="PREVENTIVE" onValueChange={(val) => setValue('maintenanceType', val)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-slate-900 border-slate-700">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PREVENTIVE">Preventive (Routine)</SelectItem>
-                    <SelectItem value="CORRECTIVE">Corrective (Repair)</SelectItem>
-                    <SelectItem value="EMERGENCY">Emergency (Breakdown)</SelectItem>
-                    <SelectItem value="INSPECTION">Inspection</SelectItem>
+                  <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
+                    <SelectItem value="PREVENTIVE" className="hover:bg-slate-800 focus:bg-slate-800">Preventive (Routine)</SelectItem>
+                    <SelectItem value="CORRECTIVE" className="hover:bg-slate-800 focus:bg-slate-800">Corrective (Repair)</SelectItem>
+                    <SelectItem value="EMERGENCY" className="hover:bg-slate-800 focus:bg-slate-800">Emergency (Breakdown)</SelectItem>
+                    <SelectItem value="INSPECTION" className="hover:bg-slate-800 focus:bg-slate-800">Inspection</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -126,7 +126,7 @@ const CreateMaintenancePage = () => {
                   id="title" 
                   placeholder="e.g. Engine Oil Change & Filter Replacement" 
                   {...register('title')} 
-                  className={errors.title ? 'border-rose-500' : ''}
+                  className={errors.title ? 'border-rose-500 bg-slate-900' : 'bg-slate-900 border-slate-700'}
                 />
                 {errors.title && <p className="text-sm text-rose-500">{errors.title.message}</p>}
               </div>
@@ -138,7 +138,7 @@ const CreateMaintenancePage = () => {
                   rows={4}
                   placeholder="Describe the issue or required service..." 
                   {...register('description')} 
-                  className={errors.description ? 'border-rose-500' : ''}
+                  className={errors.description ? 'border-rose-500 bg-slate-900' : 'bg-slate-900 border-slate-700'}
                 />
                 {errors.description && <p className="text-sm text-rose-500">{errors.description.message}</p>}
               </div>
@@ -146,14 +146,14 @@ const CreateMaintenancePage = () => {
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>
                 <Select defaultValue="MEDIUM" onValueChange={(val) => setValue('priority', val)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-slate-900 border-slate-700">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="LOW">Low</SelectItem>
-                    <SelectItem value="MEDIUM">Medium</SelectItem>
-                    <SelectItem value="HIGH">High</SelectItem>
-                    <SelectItem value="CRITICAL">Critical</SelectItem>
+                  <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
+                    <SelectItem value="LOW" className="hover:bg-slate-800 focus:bg-slate-800">Low</SelectItem>
+                    <SelectItem value="MEDIUM" className="hover:bg-slate-800 focus:bg-slate-800">Medium</SelectItem>
+                    <SelectItem value="HIGH" className="hover:bg-slate-800 focus:bg-slate-800">High</SelectItem>
+                    <SelectItem value="CRITICAL" className="hover:bg-slate-800 focus:bg-slate-800">Critical</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -164,8 +164,9 @@ const CreateMaintenancePage = () => {
                   id="scheduledDate" 
                   type="date"
                   {...register('scheduledDate')} 
+                  className="bg-slate-900 border-slate-700"
                 />
-                <p className="text-xs text-gray-500">Leaving this blank creates a 'REPORTED' job instead of 'SCHEDULED'.</p>
+                <p className="text-xs text-slate-400">Leaving this blank creates a 'REPORTED' job instead of 'SCHEDULED'.</p>
               </div>
 
               <div className="space-y-2">
@@ -175,7 +176,7 @@ const CreateMaintenancePage = () => {
                   type="number"
                   placeholder="0.00"
                   {...register('estimatedCost')} 
-                  className={errors.estimatedCost ? 'border-rose-500' : ''}
+                  className={errors.estimatedCost ? 'border-rose-500 bg-slate-900' : 'bg-slate-900 border-slate-700'}
                 />
                 {errors.estimatedCost && <p className="text-sm text-rose-500">{errors.estimatedCost.message}</p>}
               </div>
@@ -186,16 +187,17 @@ const CreateMaintenancePage = () => {
                   id="serviceCenter" 
                   placeholder="e.g. Main Depot Garage"
                   {...register('serviceCenter')} 
+                  className="bg-slate-900 border-slate-700"
                 />
               </div>
 
             </div>
           </CardContent>
-          <CardFooter className="bg-gray-50/50 flex justify-end space-x-4 border-t border-gray-100 py-4">
-            <Button type="button" variant="outline" onClick={() => navigate('/maintenance/list')}>
+          <CardFooter className="bg-slate-950/20 flex justify-end space-x-4 border-t border-slate-800 py-4">
+            <Button type="button" variant="outline" onClick={() => navigate('/maintenance/list')} className="border-slate-700 hover:bg-slate-800 text-slate-200">
               Cancel
             </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white" disabled={createMaintenance.isPending}>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white border-none" disabled={createMaintenance.isPending}>
               {createMaintenance.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {createMaintenance.isPending ? 'Logging Job...' : 'Log Maintenance'}
             </Button>

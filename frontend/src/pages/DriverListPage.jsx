@@ -113,7 +113,8 @@ const DriverListPage = ({ isEmbedded = false }) => {
     return <span className={`px-2 py-1 rounded text-xs font-semibold border ${styles[status]}`}>{status}</span>;
   };
 
-  const filteredDrivers = drivers.filter(d => {
+  const safeDrivers = Array.isArray(drivers) ? drivers : [];
+  const filteredDrivers = safeDrivers.filter(d => {
     const matchesSearch = d.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           d.licenseNumber.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter ? d.status === statusFilter : true;
@@ -124,13 +125,13 @@ const DriverListPage = ({ isEmbedded = false }) => {
   return (
     <div className={`space-y-6 ${isEmbedded ? '' : 'pt-0'}`}>
       {/* Header and Search/Add aligned */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-white tracking-tight">Drivers</h2>
           <span className="text-sm text-slate-400 font-medium">Manage driver profiles and compliance</span>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="relative w-64">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative w-full sm:w-64">
             <input 
               type="text" 
               placeholder="Search by name or license number..." 
@@ -145,7 +146,7 @@ const DriverListPage = ({ isEmbedded = false }) => {
           </button>
           <button 
             onClick={() => { setEditingDriver(null); setIsModalOpen(true); }}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium whitespace-nowrap"
           >
             <Plus size={16} className="mr-2" /> Add Driver
           </button>

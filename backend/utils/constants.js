@@ -9,15 +9,21 @@
  */
 
 const ROLES = Object.freeze({
-  ADMIN: 'ADMIN',
-  FLEET_MANAGER: 'FLEET_MANAGER',
-  DRIVER: 'DRIVER',
-  SAFETY_OFFICER: 'SAFETY_OFFICER',
-  FINANCIAL_ANALYST: 'FINANCIAL_ANALYST',
-  TECHNICIAN: 'TECHNICIAN',
+  ADMIN: 'FleetManager',
+  FLEET_MANAGER: 'FleetManager',
+  DRIVER: 'Driver',
+  SAFETY_OFFICER: 'SafetyOfficer',
+  FINANCIAL_ANALYST: 'FinancialAnalyst',
+  TECHNICIAN: 'Technician',
 });
 
-const ROLES_ARRAY = Object.freeze(Object.values(ROLES));
+const ROLES_ARRAY = Object.freeze([
+  'FleetManager',
+  'Driver',
+  'SafetyOfficer',
+  'FinancialAnalyst',
+  'Technician',
+]);
 
 const VEHICLE_STATUS = Object.freeze({
   AVAILABLE: 'AVAILABLE',

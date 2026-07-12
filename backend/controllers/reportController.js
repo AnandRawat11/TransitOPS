@@ -1,13 +1,12 @@
 const Expense = require('../models/Expense');
 const FuelLog = require('../models/FuelLog');
 const Vehicle = require('../models/Vehicle');
-const FuelLog = require('../models/FuelLog');
-const MaintenanceLog = require('../models/MaintenanceLog');
+const Maintenance = require('../models/Maintenance');
 const Trip = require('../models/Trip');
 
 // Helper to get general stats
 const getReportsData = async () => {
-  const vehicles = await Vehicle.find({ status: { $ne: 'Retired' } });
+  const vehicles = await Vehicle.find({ currentStatus: { $ne: 'RETIRED' }, isActive: true });
 
   // 1. Fuel cost and liters
   const fuelAgg = await FuelLog.aggregate([
@@ -21,21 +20,21 @@ const getReportsData = async () => {
   ]);
 
   // 2. Maintenance cost
-  const maintenanceAgg = await MaintenanceLog.aggregate([
+  const maintenanceAgg = await Maintenance.aggregate([
     {
       $group: {
-        _id: '$vehicle',
-        totalMaintenanceCost: { $sum: '$cost' },
+        _id: '$vehicleId',
+        totalMaintenanceCost: { $sum: '$actualCost' },
       },
     },
   ]);
 
   // 3. Trip distance and revenue
   const tripAgg = await Trip.aggregate([
-    { $match: { status: 'Completed' } },
+    { $match: { tripStatus: 'COMPLETED' } },
     {
       $group: {
-        _id: '$vehicle',
+        _id: '$vehicleId',
         totalDistance: { $sum: '$actualDistance' },
         totalRevenue: { $sum: '$revenue' },
       },
@@ -45,17 +44,23 @@ const getReportsData = async () => {
   // Build maps for efficient O(1) lookup
   const fuelMap = {};
   fuelAgg.forEach((item) => {
-    fuelMap[item._id.toString()] = item;
+    if (item._id) {
+      fuelMap[item._id.toString()] = item;
+    }
   });
 
   const maintenanceMap = {};
   maintenanceAgg.forEach((item) => {
-    maintenanceMap[item._id.toString()] = item.totalMaintenanceCost;
+    if (item._id) {
+      maintenanceMap[item._id.toString()] = item.totalMaintenanceCost;
+    }
   });
 
   const tripMap = {};
   tripAgg.forEach((item) => {
-    tripMap[item._id.toString()] = item;
+    if (item._id) {
+      tripMap[item._id.toString()] = item;
+    }
   });
 
   return {
@@ -71,26 +76,6 @@ const getReportsData = async () => {
 // @access  Private
 const getOperationalCost = async (req, res, next) => {
   try {
-    const totalExpenses = await Expense.aggregate([
-      { $group: { _id: null, total: { $sum: "$amount" } } }
-    ]);
-    
-    const totalFuelCost = await FuelLog.aggregate([
-      { $group: { _id: null, total: { $sum: "$cost" } } }
-    ]);
-
-    const activeTripsCount = await Trip.countDocuments({ status: 'Active' });
-    const completedTripsCount = await Trip.countDocuments({ status: 'Completed' });
-
-    res.status(200).json({ 
-      success: true, 
-      data: {
-        totalExpenses: totalExpenses[0]?.total || 0,
-        totalFuelCost: totalFuelCost[0]?.total || 0,
-        activeTripsCount,
-        completedTripsCount
-      }
-    });
     const { vehicles, fuelMap, maintenanceMap } = await getReportsData();
 
     const data = vehicles.map((v) => {
@@ -101,7 +86,7 @@ const getOperationalCost = async (req, res, next) => {
       return {
         vehicleId: v._id,
         registrationNumber: v.registrationNumber,
-        name: v.name,
+        name: v.vehicleName,
         fuelCost,
         maintenanceCost,
         totalCost: fuelCost + maintenanceCost,
@@ -133,7 +118,7 @@ const getFuelEfficiency = async (req, res, next) => {
       return {
         vehicleId: v._id,
         registrationNumber: v.registrationNumber,
-        name: v.name,
+        name: v.vehicleName,
         totalDistance,
         totalLiters,
         efficiency: parseFloat(efficiency.toFixed(2)),
@@ -154,8 +139,8 @@ const getFuelEfficiency = async (req, res, next) => {
 // @access  Private
 const getFleetUtilization = async (req, res, next) => {
   try {
-    const totalVehicles = await Vehicle.countDocuments({ status: { $ne: 'Retired' } });
-    const activeVehicles = await Vehicle.countDocuments({ status: 'On Trip' });
+    const totalVehicles = await Vehicle.countDocuments({ currentStatus: { $ne: 'RETIRED' }, isActive: true });
+    const activeVehicles = await Vehicle.countDocuments({ currentStatus: 'ON_TRIP', isActive: true });
     const utilizationRate = totalVehicles > 0 ? (activeVehicles / totalVehicles) * 100 : 0;
 
     res.status(200).json({
@@ -194,13 +179,13 @@ const getVehicleROI = async (req, res, next) => {
       return {
         vehicleId: v._id,
         registrationNumber: v.registrationNumber,
-        name: v.name,
+        name: v.vehicleName,
         acquisitionCost,
         revenue,
         fuelCost,
         maintenanceCost,
         netProfit,
-        roi: acquisitionCost > 0 ? parseFloat(roi.toFixed(2)) : 'N/A',
+        roi: acquisitionCost > 0 ? parseFloat(roi.toFixed(2)) : 0,
       };
     });
 
@@ -245,11 +230,11 @@ const exportCSV = async (req, res, next) => {
       const revenue = tripMap[vId]?.totalRevenue || 0;
       const efficiency = fuelLiters > 0 ? distance / fuelLiters : 0;
       const netProfit = revenue - (fuelCost + maintenanceCost);
-      const roi = acquisitionCost > 0 ? ((netProfit / acquisitionCost) * 100).toFixed(2) : 'N/A';
+      const roi = acquisitionCost > 0 ? ((netProfit / acquisitionCost) * 100).toFixed(2) : '0.00';
 
       return [
         v.registrationNumber,
-        v.name,
+        v.vehicleName,
         acquisitionCost,
         fuelCost,
         fuelLiters,

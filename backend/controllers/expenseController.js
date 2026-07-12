@@ -6,20 +6,6 @@ const Vehicle = require('../models/Vehicle');
 // @access  Private
 const getExpenses = async (req, res, next) => {
   try {
-    const expenses = await Expense.find().populate('vehicle');
-    res.status(200).json({ success: true, data: expenses });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const getExpenseById = async (req, res, next) => {
-  try {
-    const expense = await Expense.findById(req.params.id).populate('vehicle');
-    if (!expense) {
-      return res.status(404).json({ success: false, message: 'Expense not found' });
-    }
-    res.status(200).json({ success: true, data: expense });
     const { vehicleId, type } = req.query;
     let query = {};
     
@@ -31,7 +17,7 @@ const getExpenseById = async (req, res, next) => {
     }
 
     const expenses = await Expense.find(query)
-      .populate('vehicle', 'registrationNumber name type')
+      .populate('vehicle')
       .sort({ date: -1 });
 
     res.status(200).json({
@@ -44,28 +30,26 @@ const getExpenseById = async (req, res, next) => {
   }
 };
 
-// @desc    Create a new expense
-// @route   POST /api/expenses
-// @access  Private (FleetManager / FinancialAnalyst)
-const createExpense = async (req, res, next) => {
+// @desc    Get expense by ID
+// @route   GET /api/expenses/:id
+// @access  Private
+const getExpenseById = async (req, res, next) => {
   try {
-    const expense = await Expense.create(req.body);
-    res.status(201).json({ success: true, data: expense });
+    const expense = await Expense.findById(req.params.id).populate('vehicle');
+    if (!expense) {
+      return res.status(404).json({ success: false, message: 'Expense not found' });
+    }
+    res.status(200).json({ success: true, data: expense });
   } catch (error) {
     next(error);
   }
 };
 
-const updateExpense = async (req, res, next) => {
+// @desc    Create a new expense
+// @route   POST /api/expenses
+// @access  Private (FleetManager / FinancialAnalyst)
+const createExpense = async (req, res, next) => {
   try {
-    const expense = await Expense.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!expense) {
-      return res.status(404).json({ success: false, message: 'Expense not found' });
-    }
-    res.status(200).json({ success: true, data: expense });
     const { vehicle, type, amount, date, notes } = req.body;
 
     if (!vehicle || !type || !amount || !date) {
@@ -93,7 +77,7 @@ const updateExpense = async (req, res, next) => {
     });
 
     const populatedExpense = await Expense.findById(newExpense._id)
-      .populate('vehicle', 'registrationNumber name type');
+      .populate('vehicle');
 
     res.status(201).json({
       success: true,
@@ -104,13 +88,25 @@ const updateExpense = async (req, res, next) => {
   }
 };
 
-const deleteExpense = async (req, res, next) => {
+// @desc    Update an expense
+// @route   PUT /api/expenses/:id
+// @access  Private
+const updateExpense = async (req, res, next) => {
   try {
-    const expense = await Expense.findByIdAndDelete(req.params.id);
+    const expense = await Expense.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    }).populate('vehicle');
+
     if (!expense) {
       return res.status(404).json({ success: false, message: 'Expense not found' });
     }
-    res.status(200).json({ success: true, data: {} });
+    res.status(200).json({ success: true, data: expense });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Delete an expense entry
 // @route   DELETE /api/expenses/:id
 // @access  Private (FleetManager only)

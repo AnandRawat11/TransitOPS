@@ -10,6 +10,7 @@ import DashboardPage from './pages/DashboardPage';
 import DriverListPage from './pages/DriverListPage';
 import FuelExpensePage from './pages/FuelExpensePage';
 import ReportsPage from './pages/ReportsPage';
+import SettingsPage from './pages/SettingsPage';
 
 // Vehicle Feature Pages
 import VehicleDashboard from './features/vehicles/pages/VehicleDashboard';
@@ -81,6 +82,7 @@ const App = () => {
               <Route path="drivers" element={<DriverListPage />} />
               <Route path="fuel-expenses" element={<FuelExpensePage />} />
               <Route path="reports" element={<ReportsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
 
               {/* Fallback to dashboard */}
               <Route path="*" element={<Navigate to="/" replace />} />

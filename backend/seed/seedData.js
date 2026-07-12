@@ -5,7 +5,11 @@ const path = require('path');
 const User = require('../models/User');
 const Vehicle = require('../models/Vehicle');
 const Driver = require('../models/Driver');
-const { ROLES, VEHICLE_STATUS, VEHICLE_TYPES, FUEL_TYPES } = require('../utils/constants');
+const Trip = require('../models/Trip');
+const FuelLog = require('../models/FuelLog');
+const Maintenance = require('../models/Maintenance');
+const Expense = require('../models/Expense');
+const { ROLES, VEHICLE_STATUS, VEHICLE_TYPES, FUEL_TYPES, TRIP_STATUS } = require('../utils/constants');
 
 // Load env from backend root
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
@@ -97,15 +101,15 @@ const vehicles = [
 const drivers = [
   // 3 valid available drivers
   {
-    name: 'Alice Driver', employeeId: 'EMP-001', phone: '555-0101', licenseNumber: 'LIC-001',
-    licenseCategory: 'Heavy', licenseExpiryDate: new Date('2028-12-31'), safetyScore: 100, status: 'Available'
-    name: 'John Doe',
-    licenseNumber: 'LIC-1001',
-    licenseCategory: 'Class A',
+    name: 'Alice Driver',
+    employeeId: 'EMP-001',
+    phone: '555-0101',
+    email: 'driver@transitops.com',
+    licenseNumber: 'LIC-001',
+    licenseCategory: 'Heavy',
     licenseExpiryDate: new Date('2028-12-31'),
-    contactNumber: '+15550101',
-    safetyScore: 98,
-    status: 'Available', // Note: Driver model not updated in Phase 1
+    safetyScore: 100,
+    status: 'Available',
   },
   {
     name: 'Bob Driver', employeeId: 'EMP-002', phone: '555-0102', licenseNumber: 'LIC-002',
@@ -166,7 +170,7 @@ const seedDB = async () => {
     await Driver.deleteMany();
     await Trip.deleteMany();
     await FuelLog.deleteMany();
-    await MaintenanceLog.deleteMany();
+    await Maintenance.deleteMany();
     await Expense.deleteMany();
     console.log('Cleared existing database entries.');
 
@@ -194,58 +198,77 @@ const seedDB = async () => {
     // Seed Trips
     const trips = [
       {
-        source: 'Chicago',
+        tripNumber: 'TRIP-001',
+        startLocation: 'Chicago',
         destination: 'Detroit',
-        vehicle: insertedVehicles[0]._id,
-        driver: insertedDrivers[0]._id,
+        vehicleId: insertedVehicles[0]._id,
+        driverId: insertedDrivers[0]._id,
+        cargoType: 'General Cargo',
         cargoWeight: 18000,
         plannedDistance: 280,
         actualDistance: 285,
-        fuelConsumed: 95,
-        status: 'Completed',
-        dispatchedAt: new Date('2026-07-01T08:00:00Z'),
+        plannedStartTime: new Date('2026-07-01T08:00:00Z'),
+        plannedEndTime: new Date('2026-07-01T14:30:00Z'),
+        actualStartTime: new Date('2026-07-01T08:00:00Z'),
+        actualEndTime: new Date('2026-07-01T14:30:00Z'),
+        tripStatus: TRIP_STATUS.COMPLETED,
         completedAt: new Date('2026-07-01T14:30:00Z'),
         revenue: 1200,
+        createdBy: insertedUsers[0]._id,
       },
       {
-        source: 'New York',
+        tripNumber: 'TRIP-002',
+        startLocation: 'New York',
         destination: 'Boston',
-        vehicle: insertedVehicles[0]._id,
-        driver: insertedDrivers[0]._id,
+        vehicleId: insertedVehicles[0]._id,
+        driverId: insertedDrivers[1]._id,
+        cargoType: 'Electronics',
         cargoWeight: 12000,
         plannedDistance: 215,
         actualDistance: 220,
-        fuelConsumed: 70,
-        status: 'Completed',
-        dispatchedAt: new Date('2026-07-03T07:00:00Z'),
+        plannedStartTime: new Date('2026-07-03T07:00:00Z'),
+        plannedEndTime: new Date('2026-07-03T12:00:00Z'),
+        actualStartTime: new Date('2026-07-03T07:00:00Z'),
+        actualEndTime: new Date('2026-07-03T12:00:00Z'),
+        tripStatus: TRIP_STATUS.COMPLETED,
         completedAt: new Date('2026-07-03T12:00:00Z'),
         revenue: 950,
+        createdBy: insertedUsers[0]._id,
       },
       {
-        source: 'Dallas',
+        tripNumber: 'TRIP-003',
+        startLocation: 'Dallas',
         destination: 'Houston',
-        vehicle: insertedVehicles[1]._id,
-        driver: insertedDrivers[1]._id,
+        vehicleId: insertedVehicles[1]._id,
+        driverId: insertedDrivers[2]._id,
+        cargoType: 'Produce',
         cargoWeight: 22000,
         plannedDistance: 240,
         actualDistance: 245,
-        fuelConsumed: 80,
-        status: 'Completed',
-        dispatchedAt: new Date('2026-07-05T09:00:00Z'),
+        plannedStartTime: new Date('2026-07-05T09:00:00Z'),
+        plannedEndTime: new Date('2026-07-05T14:00:00Z'),
+        actualStartTime: new Date('2026-07-05T09:00:00Z'),
+        actualEndTime: new Date('2026-07-05T14:00:00Z'),
+        tripStatus: TRIP_STATUS.COMPLETED,
         completedAt: new Date('2026-07-05T14:00:00Z'),
         revenue: 1100,
+        createdBy: insertedUsers[0]._id,
       },
       {
-        source: 'Los Angeles',
+        tripNumber: 'TRIP-004',
+        startLocation: 'Los Angeles',
         destination: 'San Francisco',
-        vehicle: insertedVehicles[1]._id,
-        driver: insertedDrivers[1]._id,
+        vehicleId: insertedVehicles[1]._id,
+        driverId: insertedDrivers[7]._id,
+        cargoType: 'General Cargo',
         cargoWeight: 20000,
         plannedDistance: 380,
         actualDistance: 0,
-        status: 'Dispatched',
-        dispatchedAt: new Date('2026-07-10T06:00:00Z'),
+        plannedStartTime: new Date('2026-07-10T06:00:00Z'),
+        plannedEndTime: new Date('2026-07-10T14:00:00Z'),
+        tripStatus: TRIP_STATUS.IN_PROGRESS,
         revenue: 1600,
+        createdBy: insertedUsers[0]._id,
       },
     ];
 
@@ -289,41 +312,72 @@ const seedDB = async () => {
     // Seed Maintenance Logs
     const maintenanceLogs = [
       {
-        vehicle: insertedVehicles[0]._id,
-        type: 'Oil Change',
-        status: 'Closed',
-        priority: 'Medium',
-        cost: 150,
-        date: new Date('2026-06-15T08:00:00Z'),
+        maintenanceNumber: 'MNT-20260615-0001',
+        vehicleId: insertedVehicles[0]._id,
+        reportedBy: insertedUsers[0]._id,
+        assignedTechnician: insertedUsers[1]._id,
+        maintenanceType: 'PREVENTIVE',
+        priority: 'MEDIUM',
+        status: 'COMPLETED',
+        title: 'Oil Change',
+        description: 'Routine oil change and oil filter replacement',
+        actualCost: 150,
+        completedAt: new Date('2026-06-15T12:00:00Z'),
+        startedAt: new Date('2026-06-15T08:00:00Z'),
+        scheduledDate: new Date('2026-06-15T08:00:00Z'),
+        createdBy: insertedUsers[0]._id,
       },
       {
-        vehicle: insertedVehicles[0]._id,
-        type: 'Brake Replacement',
-        status: 'Closed',
-        priority: 'High',
-        cost: 650,
-        date: new Date('2026-06-28T09:00:00Z'),
+        maintenanceNumber: 'MNT-20260628-0001',
+        vehicleId: insertedVehicles[0]._id,
+        reportedBy: insertedUsers[0]._id,
+        assignedTechnician: insertedUsers[1]._id,
+        maintenanceType: 'CORRECTIVE',
+        priority: 'HIGH',
+        status: 'COMPLETED',
+        title: 'Brake Replacement',
+        description: 'Rear brake pads and rotor replacement',
+        actualCost: 650,
+        completedAt: new Date('2026-06-28T14:00:00Z'),
+        startedAt: new Date('2026-06-28T09:00:00Z'),
+        scheduledDate: new Date('2026-06-28T09:00:00Z'),
+        createdBy: insertedUsers[0]._id,
       },
       {
-        vehicle: insertedVehicles[1]._id,
-        type: 'Tire Rotation',
-        status: 'Closed',
-        priority: 'Low',
-        cost: 200,
-        date: new Date('2026-07-02T10:00:00Z'),
+        maintenanceNumber: 'MNT-20260702-0001',
+        vehicleId: insertedVehicles[1]._id,
+        reportedBy: insertedUsers[0]._id,
+        assignedTechnician: insertedUsers[1]._id,
+        maintenanceType: 'PREVENTIVE',
+        priority: 'LOW',
+        status: 'COMPLETED',
+        title: 'Tire Rotation',
+        description: 'Routine tire rotation and balancing',
+        actualCost: 200,
+        completedAt: new Date('2026-07-02T12:00:00Z'),
+        startedAt: new Date('2026-07-02T10:00:00Z'),
+        scheduledDate: new Date('2026-07-02T10:00:00Z'),
+        createdBy: insertedUsers[0]._id,
       },
       {
-        vehicle: insertedVehicles[2]._id,
-        type: 'Engine Diagnostics',
-        status: 'Active',
-        priority: 'High',
-        cost: 300,
-        date: new Date('2026-07-11T11:00:00Z'),
+        maintenanceNumber: 'MNT-20260711-0001',
+        vehicleId: insertedVehicles[2]._id,
+        reportedBy: insertedUsers[0]._id,
+        assignedTechnician: insertedUsers[1]._id,
+        maintenanceType: 'INSPECTION',
+        priority: 'HIGH',
+        status: 'IN_PROGRESS',
+        title: 'Engine Diagnostics',
+        description: 'Check engine light diagnostic scan and analysis',
+        actualCost: 300,
+        startedAt: new Date('2026-07-11T11:00:00Z'),
+        scheduledDate: new Date('2026-07-11T11:00:00Z'),
+        createdBy: insertedUsers[0]._id,
       },
     ];
 
-    await MaintenanceLog.insertMany(maintenanceLogs);
-    console.log(`Successfully seeded ${maintenanceLogs.length} Maintenance Logs.`);
+    await Maintenance.insertMany(maintenanceLogs);
+    console.log(`Successfully seeded ${maintenanceLogs.length} Maintenance logs.`);
 
     // Seed Expenses
     const expenses = [

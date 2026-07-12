@@ -9,13 +9,12 @@ import {
   Wrench,
   Fuel,
   BarChart3,
-  LogOut,
   PieChart,
   Settings,
 } from 'lucide-react';
 
-const Sidebar = () => {
-  const { user, logout } = useAuth();
+const Sidebar = ({ isOpen, onClose }) => {
+  const { user } = useAuth();
   const role = user?.role;
 
   // Navigation config with role-based access control
@@ -76,17 +75,25 @@ const Sidebar = () => {
     },
   ];
 
-  const filteredNavItems = navItems; // Temporarily show all items for UI review
-  /* 
   const filteredNavItems = navItems.filter((item) =>
     item.allowedRoles.includes(role)
   );
-  */
 
   return (
-    <aside className="fixed bottom-0 left-0 top-0 z-20 flex w-64 flex-col border-r border-slate-800 bg-slate-900 text-slate-300">
-      {/* Brand Logo */}
-      <div className="flex h-16 items-center px-6 border-b border-slate-800 bg-slate-950/40">
+    <>
+      {/* Mobile backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-20 bg-slate-950/60 backdrop-blur-sm lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside className={`fixed bottom-0 left-0 top-0 z-30 flex w-64 flex-col border-r border-slate-800 bg-slate-900 text-slate-300 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        {/* Brand Logo */}
+        <div className="flex h-16 items-center px-6 border-b border-slate-800 bg-slate-950/40">
         <div className="flex items-center space-x-2">
           <div className="rounded-lg bg-brand-600 p-1.5 text-white">
             <Truck className="h-6 w-6" />
@@ -105,6 +112,7 @@ const Sidebar = () => {
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={onClose}
               className={({ isActive }) =>
                 `flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                   isActive
@@ -122,21 +130,15 @@ const Sidebar = () => {
 
       {/* Sidebar Footer */}
       <div className="border-t border-slate-800 p-4 bg-slate-950/20">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between">
           <div className="overflow-hidden">
             <p className="text-sm font-semibold text-white truncate">{user?.name || 'User'}</p>
             <p className="text-xs text-slate-500 truncate">{role}</p>
           </div>
         </div>
-        <button
-          onClick={logout}
-          className="flex w-full items-center justify-center space-x-2 rounded-lg border border-slate-800 bg-slate-950/40 py-2 text-sm font-medium text-slate-400 transition-all hover:bg-rose-950/20 hover:text-rose-400 hover:border-rose-900/50"
-        >
-          <LogOut className="h-4 w-4" />
-          <span>Logout</span>
-        </button>
       </div>
     </aside>
+  </>
   );
 };
 
