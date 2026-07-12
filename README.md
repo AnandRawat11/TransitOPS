@@ -1,10 +1,4 @@
-<p align="center">
-  <img src="docs/assets/banner.png" alt="TransitOps Banner" width="100%" />
-</p>
 
-<p align="center">
-  <img src="docs/assets/logo.png" alt="TransitOps Logo" width="120" />
-</p>
 
 <h1 align="center">TransitOps</h1>
 <h3 align="center">AI-Powered Smart Transport Operations Platform</h3>
