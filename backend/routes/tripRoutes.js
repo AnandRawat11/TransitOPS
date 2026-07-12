@@ -2,12 +2,20 @@ const express = require('express');
 const router = express.Router();
 const tripController = require('../controllers/tripController');
 
-// GET / - list all - Nitin Singh to implement
+// GET / - list all
 router.get('/', tripController.getTrips);
 
-// POST / - create - Nitin Singh to implement
+// GET /:id - get trip by id
+router.get('/:id', tripController.getTripById);
+
+// POST / - create
 router.post('/', tripController.createTrip);
 
+// PUT /:id - update trip
+router.put('/:id', tripController.updateTrip);
+
+// DELETE /:id - delete trip
+router.delete('/:id', tripController.deleteTrip);
 // PUT /:id/dispatch - dispatch trip
 router.put('/:id/dispatch', tripController.dispatchTrip);
 

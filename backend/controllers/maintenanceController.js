@@ -1,4 +1,21 @@
 const MaintenanceLog = require('../models/MaintenanceLog');
+
+const getMaintenanceLogs = async (req, res, next) => {
+  try {
+    const logs = await MaintenanceLog.find().populate('vehicle');
+    res.status(200).json({ success: true, data: logs });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getMaintenanceLogById = async (req, res, next) => {
+  try {
+    const log = await MaintenanceLog.findById(req.params.id).populate('vehicle');
+    if (!log) {
+      return res.status(404).json({ success: false, message: 'Maintenance log not found' });
+    }
+    res.status(200).json({ success: true, data: log });
 const Vehicle = require('../models/Vehicle');
 
 const getMaintenanceLogs = async (req, res, next) => {
@@ -29,6 +46,23 @@ const getMaintenanceLogs = async (req, res, next) => {
 
 const createMaintenanceLog = async (req, res, next) => {
   try {
+    const log = await MaintenanceLog.create(req.body);
+    res.status(201).json({ success: true, data: log });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateMaintenanceLog = async (req, res, next) => {
+  try {
+    const log = await MaintenanceLog.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!log) {
+      return res.status(404).json({ success: false, message: 'Maintenance log not found' });
+    }
+    res.status(200).json({ success: true, data: log });
     const { vehicle, maintenanceType, description, cost } = req.body;
 
     // 1. Validate required fields
@@ -83,6 +117,13 @@ const createMaintenanceLog = async (req, res, next) => {
   }
 };
 
+const deleteMaintenanceLog = async (req, res, next) => {
+  try {
+    const log = await MaintenanceLog.findByIdAndDelete(req.params.id);
+    if (!log) {
+      return res.status(404).json({ success: false, message: 'Maintenance log not found' });
+    }
+    res.status(200).json({ success: true, data: {} });
 const closeMaintenance = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -139,6 +180,9 @@ const closeMaintenance = async (req, res, next) => {
 
 module.exports = {
   getMaintenanceLogs,
+  getMaintenanceLogById,
   createMaintenanceLog,
+  updateMaintenanceLog,
+  deleteMaintenanceLog,
   closeMaintenance,
 };
