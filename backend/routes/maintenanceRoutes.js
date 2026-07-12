@@ -8,4 +8,7 @@ router.get('/', maintenanceController.getMaintenanceLogs);
 // POST / - create - Nitin Singh to implement
 router.post('/', maintenanceController.createMaintenanceLog);
 
+// PUT /:id/close - close maintenance
+router.put('/:id/close', maintenanceController.closeMaintenance);
+
 module.exports = router;
