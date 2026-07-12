@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Search, Filter, Plus, Edit2, Trash2 } from 'lucide-react';
 import DriverFormModal from '../components/DriverFormModal';
 
-const DriverListPage = () => {
+const DriverListPage = ({ isEmbedded = false }) => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -122,58 +122,37 @@ const DriverListPage = () => {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={`space-y-6 ${isEmbedded ? '' : 'pt-0'}`}>
+      {/* Header and Search/Add aligned */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">Drivers Registry</h2>
-          <span className="text-sm text-slate-400 font-medium">Licensed Operators</span>
+          <h2 className="text-xl font-bold text-white tracking-tight">Drivers</h2>
+          <span className="text-sm text-slate-400 font-medium">Manage driver profiles and compliance</span>
         </div>
-        <button 
-          onClick={() => { setEditingDriver(null); setIsModalOpen(true); }}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        >
-          <Plus size={18} className="mr-2" /> Add Driver
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="relative w-64">
+            <input 
+              type="text" 
+              placeholder="Search by name or license number..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-3 pr-10 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-blue-500"
+            />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          </div>
+          <button className="flex items-center px-4 py-2 bg-slate-900 border border-slate-700 text-slate-200 rounded-lg hover:bg-slate-800 transition text-sm">
+            <Filter size={16} className="mr-2" /> Filters
+          </button>
+          <button 
+            onClick={() => { setEditingDriver(null); setIsModalOpen(true); }}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+          >
+            <Plus size={16} className="mr-2" /> Add Driver
+          </button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-800 flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="Search by name or license..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 focus:outline-none focus:border-blue-500"
-            />
-          </div>
-          <div className="flex gap-4 w-full sm:w-auto">
-            <select 
-              value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-slate-200 focus:outline-none"
-            >
-              <option value="">All Statuses</option>
-              <option value="Available">Available</option>
-              <option value="On Trip">On Trip</option>
-              <option value="Off Duty">Off Duty</option>
-              <option value="Suspended">Suspended</option>
-            </select>
-            <select 
-              value={categoryFilter} 
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-slate-200 focus:outline-none"
-            >
-              <option value="">All Categories</option>
-              <option value="Light">Light</option>
-              <option value="Medium">Medium</option>
-              <option value="Heavy">Heavy</option>
-              <option value="Commercial">Commercial</option>
-            </select>
-          </div>
-        </div>
-
         <div className="overflow-x-auto">
           <table className="w-full text-left text-slate-300">
             <thead className="bg-slate-800/50 text-slate-400 text-sm">
@@ -229,6 +208,17 @@ const DriverListPage = () => {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="p-4 border-t border-slate-800 flex items-center justify-between text-sm text-slate-400">
+          <span>Showing 1 to 5 of 18 drivers</span>
+          <div className="flex items-center gap-1">
+            <button className="w-8 h-8 flex items-center justify-center rounded bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300">{'<'}</button>
+            <button className="w-8 h-8 flex items-center justify-center rounded bg-blue-600 text-white font-medium">1</button>
+            <button className="w-8 h-8 flex items-center justify-center rounded bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300">2</button>
+            <button className="w-8 h-8 flex items-center justify-center rounded bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300">3</button>
+            <button className="w-8 h-8 flex items-center justify-center rounded bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300">4</button>
+            <button className="w-8 h-8 flex items-center justify-center rounded bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300">{'>'}</button>
+          </div>
         </div>
       </div>
 
