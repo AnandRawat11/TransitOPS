@@ -1,144 +1,69 @@
-const MaintenanceLog = require('../models/MaintenanceLog');
-const Vehicle = require('../models/Vehicle');
+/**
+ * maintenanceController.js - Maintenance endpoints controller.
+ */
+const maintenanceService = require('../services/maintenance.service');
+const { sendSuccess } = require('../utils/apiResponse');
+const catchAsync = require('../utils/catchAsync');
 
-const getMaintenanceLogs = async (req, res, next) => {
-  try {
-    const { vehicleId, status } = req.query;
-    const query = {};
+const createMaintenance = catchAsync(async (req, res) => {
+  const mnt = await maintenanceService.createMaintenance(req.body, req.user.id);
+  sendSuccess(res, 201, 'Maintenance logged successfully', mnt);
+});
 
-    if (vehicleId) {
-      query.vehicle = vehicleId;
-    }
-    if (status) {
-      query.status = status;
-    }
+const getMaintenance = catchAsync(async (req, res) => {
+  const result = await maintenanceService.getAllMaintenance(req.query);
+  res.status(200).json({
+    success: true,
+    message: 'Maintenance records retrieved',
+    data: result.data,
+    pagination: result.pagination
+  });
+});
 
-    const logs = await MaintenanceLog.find(query)
-      .populate('vehicle')
-      .sort({ createdAt: -1 });
+const getMaintenanceById = catchAsync(async (req, res) => {
+  const mnt = await maintenanceService.getMaintenanceById(req.params.id);
+  sendSuccess(res, 200, 'Maintenance record retrieved', mnt);
+});
 
-    res.status(200).json({
-      success: true,
-      count: logs.length,
-      data: logs,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+const getMaintenanceByVehicleId = catchAsync(async (req, res) => {
+  const records = await maintenanceService.getMaintenanceByVehicleId(req.params.vehicleId);
+  sendSuccess(res, 200, 'Vehicle maintenance history retrieved', records);
+});
 
-const createMaintenanceLog = async (req, res, next) => {
-  try {
-    const { vehicle, maintenanceType, description, cost } = req.body;
+const getUpcoming = catchAsync(async (req, res) => {
+  const records = await maintenanceService.getUpcomingMaintenance();
+  sendSuccess(res, 200, 'Upcoming maintenance retrieved', records);
+});
 
-    // 1. Validate required fields
-    if (!vehicle || !maintenanceType || !description || cost == null) {
-      return res.status(400).json({
-        success: false,
-        message: 'vehicle, maintenanceType, description, and cost are required fields',
-      });
-    }
+const getOverdue = catchAsync(async (req, res) => {
+  const records = await maintenanceService.getOverdueMaintenance();
+  sendSuccess(res, 200, 'Overdue maintenance retrieved', records);
+});
 
-    // 2. Fetch Vehicle
-    const vehicleDoc = await Vehicle.findById(vehicle);
-    if (!vehicleDoc) {
-      return res.status(404).json({
-        success: false,
-        message: 'Vehicle not found',
-      });
-    }
+const updateMaintenance = catchAsync(async (req, res) => {
+  const mnt = await maintenanceService.updateMaintenance(req.params.id, req.body, req.user.id);
+  sendSuccess(res, 200, 'Maintenance updated successfully', mnt);
+});
 
-    if (vehicleDoc.status === 'Retired') {
-      return res.status(400).json({
-        success: false,
-        message: 'Vehicle is retired and cannot undergo maintenance',
-      });
-    }
+const updateMaintenanceStatus = catchAsync(async (req, res) => {
+  const { status, notes } = req.body;
+  const mnt = await maintenanceService.updateMaintenanceStatus(req.params.id, status, notes, req.user.id);
+  sendSuccess(res, 200, 'Maintenance status updated successfully', mnt);
+});
 
-    // 3. Create MaintenanceLog
-    const maintenanceLog = new MaintenanceLog({
-      vehicle,
-      type: maintenanceType,
-      description,
-      cost,
-      status: 'Active',
-      startDate: new Date(),
-    });
-
-    // 4. Update Vehicle status
-    vehicleDoc.status = 'In Shop';
-
-    // 5. Save both documents
-    await maintenanceLog.save();
-    await vehicleDoc.save();
-
-    // 6. Return HTTP 201
-    res.status(201).json({
-      success: true,
-      message: 'Maintenance record created successfully',
-      data: maintenanceLog,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const closeMaintenance = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    // 1. Find the MaintenanceLog
-    const maintenanceLog = await MaintenanceLog.findById(id);
-    if (!maintenanceLog) {
-      return res.status(404).json({
-        success: false,
-        message: 'Maintenance log not found',
-      });
-    }
-
-    // 2. Allow closing only if status === "Active"
-    if (maintenanceLog.status !== 'Active') {
-      return res.status(400).json({
-        success: false,
-        message: 'Maintenance record is already closed or not active',
-      });
-    }
-
-    // 3. Fetch the associated Vehicle
-    const vehicleDoc = await Vehicle.findById(maintenanceLog.vehicle);
-    if (!vehicleDoc) {
-      return res.status(404).json({
-        success: false,
-        message: 'Vehicle associated with the maintenance log not found',
-      });
-    }
-
-    // 4. Update MaintenanceLog
-    maintenanceLog.status = 'Closed';
-    maintenanceLog.closedDate = new Date();
-
-    // 5. If vehicle.status !== "Retired", update to "Available"
-    if (vehicleDoc.status !== 'Retired') {
-      vehicleDoc.status = 'Available';
-    }
-
-    // 6. Save both documents
-    await maintenanceLog.save();
-    await vehicleDoc.save();
-
-    // 7. Return HTTP 200
-    res.status(200).json({
-      success: true,
-      message: 'Maintenance closed successfully',
-      data: maintenanceLog,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+const deleteMaintenance = catchAsync(async (req, res) => {
+  await maintenanceService.deleteMaintenance(req.params.id);
+  sendSuccess(res, 200, 'Maintenance record deleted successfully');
+});
 
 module.exports = {
-  getMaintenanceLogs,
-  createMaintenanceLog,
-  closeMaintenance,
+  createMaintenance,
+  getMaintenance,
+  getMaintenanceById,
+  getMaintenanceByVehicleId,
+  getUpcoming,
+  getOverdue,
+  updateMaintenance,
+  updateMaintenanceStatus,
+  deleteMaintenance,
 };

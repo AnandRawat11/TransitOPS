@@ -8,7 +8,6 @@ import AppLayout from './components/layout/AppLayout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import DriverListPage from './pages/DriverListPage';
-import MaintenancePage from './pages/MaintenancePage';
 import FuelExpensePage from './pages/FuelExpensePage';
 import ReportsPage from './pages/ReportsPage';
 
@@ -21,6 +20,10 @@ import TripsDashboardPage from './features/trips/pages/TripsDashboardPage';
 import TripListPage from './features/trips/pages/TripListPage';
 import CreateTripPage from './features/trips/pages/CreateTripPage';
 
+// Maintenance Feature Pages
+import MaintenanceDashboardPage from './features/maintenance/pages/MaintenanceDashboardPage';
+import MaintenanceListPage from './features/maintenance/pages/MaintenanceListPage';
+import CreateMaintenancePage from './features/maintenance/pages/CreateMaintenancePage';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -68,8 +71,14 @@ const App = () => {
                 <Route path="new" element={<CreateTripPage />} />
               </Route>
 
+              {/* Maintenance Sub-pages */}
+              <Route path="maintenance">
+                <Route index element={<MaintenanceDashboardPage />} />
+                <Route path="list" element={<MaintenanceListPage />} />
+                <Route path="new" element={<CreateMaintenancePage />} />
+              </Route>
+
               <Route path="drivers" element={<DriverListPage />} />
-              <Route path="maintenance" element={<MaintenancePage />} />
               <Route path="fuel-expenses" element={<FuelExpensePage />} />
               <Route path="reports" element={<ReportsPage />} />
 
