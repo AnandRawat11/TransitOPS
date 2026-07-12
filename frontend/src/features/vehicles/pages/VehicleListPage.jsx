@@ -7,8 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Plus, Filter, ChevronLeft, ChevronRight, Truck } from 'lucide-react';
+import { Search, Plus, Filter, ChevronLeft, ChevronRight, Truck, Car } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { TableSkeleton } from '@/components/ui/Skeleton';
+import EmptyState from '@/components/ui/EmptyState';
 
 const statusColors = {
   AVAILABLE: 'bg-emerald-100 text-emerald-800',
@@ -74,18 +76,19 @@ const VehicleListPage = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-32 text-center text-slate-500 animate-pulse">
-                    Loading vehicles...
+                  <TableCell colSpan={6} className="h-32 p-0 border-0">
+                    <TableSkeleton rows={5} columns={6} />
                   </TableCell>
                 </TableRow>
               ) : data?.data?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-48 text-center">
-                    <div className="flex flex-col items-center justify-center text-slate-500">
-                      <Truck className="w-12 h-12 mb-4 text-slate-300" />
-                      <p className="text-lg font-medium">No vehicles found.</p>
-                      <p className="text-sm">Try adjusting your search or add a new vehicle.</p>
-                    </div>
+                  <TableCell colSpan={6} className="p-0 border-0">
+                    <EmptyState 
+                      icon={Car} 
+                      title="No Vehicles Found" 
+                      message="You don't have any vehicles matching this criteria."
+                      action={<Button asChild><Link to="/app/vehicles/new"><Plus className="w-4 h-4 mr-2"/> Add Vehicle</Link></Button>}
+                    />
                   </TableCell>
                 </TableRow>
               ) : (

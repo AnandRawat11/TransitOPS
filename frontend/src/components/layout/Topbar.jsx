@@ -1,9 +1,9 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { User } from 'lucide-react';
+import { User, Maximize, Minimize } from 'lucide-react';
 import NotificationBell from '../../features/notifications/components/NotificationBell';
 
-const Topbar = () => {
+const Topbar = ({ isPresentationMode, togglePresentationMode }) => {
   const { user } = useAuth();
 
   return (
@@ -15,6 +15,14 @@ const Topbar = () => {
 
       {/* Action / User Panel */}
       <div className="flex items-center space-x-6">
+        <button 
+          onClick={togglePresentationMode} 
+          className="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-800"
+          title={isPresentationMode ? "Exit Presentation Mode" : "Enter Presentation Mode"}
+        >
+          {isPresentationMode ? <Minimize size={20} /> : <Maximize size={20} />}
+        </button>
+
         {/* Notifications */}
         <NotificationBell />
 

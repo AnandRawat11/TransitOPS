@@ -5,12 +5,24 @@ import {
   LineChart, Line 
 } from 'recharts';
 import { Activity, Truck, DollarSign, Wrench } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { CardSkeleton } from '@/components/ui/Skeleton';
 
 const ExecutiveDashboardPage = () => {
   const { data: dashboardData, isLoading } = useExecutiveDashboard();
 
   if (isLoading) {
-    return <div className="p-8 text-center text-slate-500">Loading Business Intelligence...</div>;
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-slate-800">Executive Dashboard</h1>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      </div>
+    );
   }
 
   const { fleet, trips, finance, maintenance, fuel } = dashboardData?.data || {};
@@ -26,41 +38,33 @@ const ExecutiveDashboardPage = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="flex justify-between items-start">
-            <p className="text-sm font-medium text-slate-500">Fleet Utilization</p>
-            <Truck size={18} className="text-blue-500" />
-          </div>
-          <h3 className="text-2xl font-bold text-slate-800 mt-2">{fleet?.utilization}%</h3>
-          <p className="text-xs text-slate-500 mt-1">{fleet?.active} Active Vehicles</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="flex justify-between items-start">
-            <p className="text-sm font-medium text-slate-500">Trip Success Rate</p>
-            <Activity size={18} className="text-green-500" />
-          </div>
-          <h3 className="text-2xl font-bold text-slate-800 mt-2">{trips?.successRate}%</h3>
-          <p className="text-xs text-slate-500 mt-1">{trips?.total} Total Trips</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="flex justify-between items-start">
-            <p className="text-sm font-medium text-slate-500">Operating Cost</p>
-            <DollarSign size={18} className="text-rose-500" />
-          </div>
-          <h3 className="text-2xl font-bold text-slate-800 mt-2">${finance?.totalOperatingCost?.toLocaleString()}</h3>
-          <p className="text-xs text-slate-500 mt-1">Total Ledger Expenses</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="flex justify-between items-start">
-            <p className="text-sm font-medium text-slate-500">Prev. Maintenance Ratio</p>
-            <Wrench size={18} className="text-amber-500" />
-          </div>
-          <h3 className="text-2xl font-bold text-slate-800 mt-2">{maintenance?.prevRatio}%</h3>
-          <p className="text-xs text-slate-500 mt-1">Preventive vs Corrective</p>
-        </div>
+        {[
+          { title: "Fleet Utilization", val: `${fleet?.utilization}%`, sub: `${fleet?.active} Active Vehicles`, icon: Truck, color: "text-blue-500" },
+          { title: "Trip Success Rate", val: `${trips?.successRate}%`, sub: `${trips?.total} Total Trips`, icon: Activity, color: "text-green-500" },
+          { title: "Operating Cost", val: `$${finance?.totalOperatingCost?.toLocaleString()}`, sub: "Total Ledger Expenses", icon: DollarSign, color: "text-rose-500" },
+          { title: "Prev. Maintenance Ratio", val: `${maintenance?.preventativeRatio}%`, sub: "Scheduled vs Reactive", icon: Wrench, color: "text-amber-500" }
+        ].map((kpi, idx) => {
+          const Icon = kpi.icon;
+          return (
+            <motion.div 
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group"
+            >
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
+                <Icon size={64} className={kpi.color} />
+              </div>
+              <div className="flex justify-between items-start relative z-10">
+                <p className="text-sm font-medium text-slate-500">{kpi.title}</p>
+                <Icon size={18} className={kpi.color} />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-800 mt-2 relative z-10">{kpi.val}</h3>
+              <p className="text-xs text-slate-500 mt-1 relative z-10">{kpi.sub}</p>
+            </motion.div>
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

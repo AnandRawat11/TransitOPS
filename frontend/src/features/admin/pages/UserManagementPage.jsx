@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAdminUsers, useUpdateUserRole, useToggleUserStatus } from '../hooks/useAdmin';
 import { Search, ShieldAlert, UserCheck, UserX } from 'lucide-react';
+import DemoPanel from '../components/DemoPanel';
 
 const UserManagementPage = () => {
   const [search, setSearch] = useState('');
@@ -89,6 +90,8 @@ const UserManagementPage = () => {
           <div className="p-8 text-center text-slate-500">No users found.</div>
         )}
       </div>
+
+      <DemoPanel />
     </div>
   );
 };

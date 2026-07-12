@@ -1,12 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { CommandPaletteProvider } from './context/CommandPaletteContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AppLayout from './components/layout/AppLayout';
 
-// Pages
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import NotFoundPage from './pages/NotFoundPage';
 import DriverListPage from './pages/DriverListPage';
 import FuelExpensePage from './pages/FuelExpensePage';
 import ReportsPage from './pages/ReportsPage';
@@ -41,6 +44,10 @@ import ReportBuilderPage from './features/analytics/pages/ReportBuilderPage';
 import ActivityTimelinePage from './features/activity/pages/ActivityTimelinePage';
 import UserManagementPage from './features/admin/pages/UserManagementPage';
 
+// Settings & Profile
+import SettingsPage from './pages/SettingsPage';
+import ProfilePage from './pages/ProfilePage';
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient({
@@ -55,15 +62,18 @@ const queryClient = new QueryClient({
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
-          <Routes>
-            {/* Public Authentication Route */}
-            <Route path="/login" element={<LoginPage />} />
+      <ThemeProvider>
+        <AuthProvider>
+          <CommandPaletteProvider>
+            <Router>
+              <Routes>
+                {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
 
             {/* Protected Main Application Layout Routes */}
             <Route
-              path="/"
+              path="/app"
               element={
                 <ProtectedRoute>
                   <AppLayout />
@@ -125,12 +135,21 @@ const App = () => {
                 <Route path="activity" element={<ActivityTimelinePage />} />
               </Route>
 
+              {/* Settings & Profile Routes */}
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+
               {/* Fallback to dashboard */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<Navigate to="/app" replace />} />
             </Route>
-          </Routes>
-        </Router>
-      </AuthProvider>
+
+              {/* Global Fallback */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Router>
+          </CommandPaletteProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
