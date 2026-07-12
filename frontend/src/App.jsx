@@ -8,7 +8,6 @@ import AppLayout from './components/layout/AppLayout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import DriverListPage from './pages/DriverListPage';
-import TripListPage from './pages/TripListPage';
 import MaintenancePage from './pages/MaintenancePage';
 import FuelExpensePage from './pages/FuelExpensePage';
 import ReportsPage from './pages/ReportsPage';
@@ -16,6 +15,11 @@ import ReportsPage from './pages/ReportsPage';
 // Vehicle Feature Pages
 import VehicleDashboard from './features/vehicles/pages/VehicleDashboard';
 import VehicleListPage from './features/vehicles/pages/VehicleListPage';
+
+// Trip Feature Pages
+import TripsDashboardPage from './features/trips/pages/TripsDashboardPage';
+import TripListPage from './features/trips/pages/TripListPage';
+import CreateTripPage from './features/trips/pages/CreateTripPage';
 
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -57,8 +61,14 @@ const App = () => {
                 {/* <Route path=":id" element={<VehicleDetailsPage />} /> */}
               </Route>
 
+              {/* Trip Sub-pages */}
+              <Route path="trips">
+                <Route index element={<TripsDashboardPage />} />
+                <Route path="list" element={<TripListPage />} />
+                <Route path="new" element={<CreateTripPage />} />
+              </Route>
+
               <Route path="drivers" element={<DriverListPage />} />
-              <Route path="trips" element={<TripListPage />} />
               <Route path="maintenance" element={<MaintenancePage />} />
               <Route path="fuel-expenses" element={<FuelExpensePage />} />
               <Route path="reports" element={<ReportsPage />} />

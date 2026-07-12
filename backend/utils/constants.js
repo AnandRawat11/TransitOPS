@@ -48,6 +48,25 @@ const FUEL_TYPES = Object.freeze({
 
 const FUEL_TYPES_ARRAY = Object.freeze(Object.values(FUEL_TYPES));
 
+const TRIP_STATUS = Object.freeze({
+  PLANNED: 'PLANNED',
+  ASSIGNED: 'ASSIGNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+});
+
+const TRIP_STATUS_ARRAY = Object.freeze(Object.values(TRIP_STATUS));
+
+const TRIP_PRIORITY = Object.freeze({
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT',
+});
+
+const TRIP_PRIORITY_ARRAY = Object.freeze(Object.values(TRIP_PRIORITY));
+
 module.exports = {
   ROLES,
   ROLES_ARRAY,
@@ -57,4 +76,8 @@ module.exports = {
   VEHICLE_TYPES_ARRAY,
   FUEL_TYPES,
   FUEL_TYPES_ARRAY,
+  TRIP_STATUS,
+  TRIP_STATUS_ARRAY,
+  TRIP_PRIORITY,
+  TRIP_PRIORITY_ARRAY,
 };
