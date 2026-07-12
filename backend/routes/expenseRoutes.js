@@ -1,11 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const expenseController = require('../controllers/expenseController');
+const authMiddleware = require('../middleware/authMiddleware');
+const roleMiddleware = require('../middleware/roleMiddleware');
 
-// GET / - list all - Saurav Shandilya to implement
+// All routes are private
+router.use(authMiddleware);
+
+// GET / - list expenses (all roles)
 router.get('/', expenseController.getExpenses);
 
-// POST / - create - Saurav Shandilya to implement
-router.post('/', expenseController.createExpense);
+// POST / - create expense (FleetManager / FinancialAnalyst)
+router.post('/', roleMiddleware(['FleetManager', 'FinancialAnalyst']), expenseController.createExpense);
+
+// DELETE /:id - delete expense (FleetManager only)
+router.delete('/:id', roleMiddleware(['FleetManager']), expenseController.deleteExpense);
 
 module.exports = router;

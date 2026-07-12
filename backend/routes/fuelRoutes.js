@@ -1,11 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const fuelController = require('../controllers/fuelController');
+const authMiddleware = require('../middleware/authMiddleware');
+const roleMiddleware = require('../middleware/roleMiddleware');
 
-// GET / - list all - Saurav Shandilya to implement
+// All routes are private
+router.use(authMiddleware);
+
+// GET / - list fuel logs (all roles)
 router.get('/', fuelController.getFuelLogs);
 
-// POST / - create - Saurav Shandilya to implement
-router.post('/', fuelController.createFuelLog);
+// POST / - create fuel log (Driver / FleetManager)
+router.post('/', roleMiddleware(['Driver', 'FleetManager']), fuelController.createFuelLog);
+
+// DELETE /:id - delete fuel log (FleetManager only)
+router.delete('/:id', roleMiddleware(['FleetManager']), fuelController.deleteFuelLog);
 
 module.exports = router;
