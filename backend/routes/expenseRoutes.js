@@ -2,18 +2,59 @@ const express = require('express');
 const router = express.Router();
 const expenseController = require('../controllers/expenseController');
 const authMiddleware = require('../middleware/authMiddleware');
-const roleMiddleware = require('../middleware/roleMiddleware');
+const authorize = require('../middleware/roleMiddleware');
+const validate = require('../middleware/validate');
+const { ROLES } = require('../utils/constants');
+const {
+  createExpenseSchema,
+  updateExpenseSchema,
+  updateApprovalSchema,
+  idSchema
+} = require('../validators/finance.validator');
 
-// All routes are private
 router.use(authMiddleware);
 
-// GET / - list expenses (all roles)
-router.get('/', expenseController.getExpenses);
+router.get(
+  '/',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST),
+  expenseController.getExpenses
+);
 
-// POST / - create expense (FleetManager / FinancialAnalyst)
-router.post('/', roleMiddleware(['FleetManager', 'FinancialAnalyst']), expenseController.createExpense);
+router.get(
+  '/:id',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST),
+  validate(idSchema, 'params'),
+  expenseController.getExpenseById
+);
 
-// DELETE /:id - delete expense (FleetManager only)
-router.delete('/:id', roleMiddleware(['FleetManager']), expenseController.deleteExpense);
+router.post(
+  '/',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST),
+  validate(createExpenseSchema),
+  expenseController.createExpense
+);
+
+router.put(
+  '/:id',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST),
+  validate(idSchema, 'params'),
+  validate(updateExpenseSchema),
+  expenseController.updateExpense
+);
+
+router.patch(
+  '/:id/approve',
+  authorize(ROLES.ADMIN, ROLES.FINANCIAL_ANALYST),
+  validate(idSchema, 'params'),
+  validate(updateApprovalSchema),
+  expenseController.updateApprovalStatus
+);
+
+router.delete(
+  '/:id',
+  authorize(ROLES.ADMIN),
+  validate(idSchema, 'params'),
+  expenseController.deleteExpense
+);
 
 module.exports = router;

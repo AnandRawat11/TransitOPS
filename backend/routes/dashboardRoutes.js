@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');
 const tripDashboardController = require('../controllers/tripDashboardController');
+const maintenanceDashboardController = require('../controllers/maintenanceDashboardController');
+const financeDashboardController = require('../controllers/financeDashboardController');
 const authMiddleware = require('../middleware/authMiddleware');
 const authorize = require('../middleware/roleMiddleware');
 const { ROLES } = require('../utils/constants');
@@ -49,8 +51,6 @@ router.get(
 );
 
 // --- MAINTENANCE DASHBOARD ---
-const maintenanceDashboardController = require('../controllers/maintenanceDashboardController');
-
 router.get(
   '/maintenance/summary',
   authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST),
@@ -61,6 +61,19 @@ router.get(
   '/maintenance/analytics',
   authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST),
   maintenanceDashboardController.getAnalytics
+);
+
+// --- FINANCE & FUEL DASHBOARD ---
+router.get(
+  '/finance/summary',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST),
+  financeDashboardController.getFinanceSummary
+);
+
+router.get(
+  '/finance/analytics',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST),
+  financeDashboardController.getFinanceAnalytics
 );
 
 module.exports = router;

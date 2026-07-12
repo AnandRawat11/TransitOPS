@@ -1,102 +1,44 @@
-const FuelLog = require('../models/FuelLog');
-const Vehicle = require('../models/Vehicle');
+/**
+ * fuelController.js - Fuel endpoints controller.
+ */
+const fuelService = require('../services/fuel.service');
+const { sendSuccess } = require('../utils/apiResponse');
+const catchAsync = require('../utils/catchAsync');
 
-// @desc    Get all fuel logs
-// @route   GET /api/fuel
-// @access  Private
-const getFuelLogs = async (req, res, next) => {
-  try {
-    const { vehicleId } = req.query;
-    let query = {};
-    if (vehicleId) {
-      query.vehicle = vehicleId;
-    }
+const createFuelLog = catchAsync(async (req, res) => {
+  const log = await fuelService.createFuelLog(req.body, req.user.id);
+  sendSuccess(res, 201, 'Fuel log created successfully', log);
+});
 
-    const logs = await FuelLog.find(query)
-      .populate('vehicle', 'registrationNumber name type')
-      .populate('trip', 'source destination status')
-      .sort({ date: -1 });
+const getFuelLogs = catchAsync(async (req, res) => {
+  const result = await fuelService.getAllFuelLogs(req.query);
+  res.status(200).json({
+    success: true,
+    message: 'Fuel logs retrieved successfully',
+    data: result.data,
+    pagination: result.pagination
+  });
+});
 
-    res.status(200).json({
-      success: true,
-      count: logs.length,
-      data: logs,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+const getFuelLogById = catchAsync(async (req, res) => {
+  const log = await fuelService.getFuelLogById(req.params.id);
+  sendSuccess(res, 200, 'Fuel log retrieved successfully', log);
+});
 
-// @desc    Create a new fuel log
-// @route   POST /api/fuel
-// @access  Private (Driver / FleetManager)
-const createFuelLog = async (req, res, next) => {
-  try {
-    const { vehicle, trip, liters, cost, date } = req.body;
+const updateFuelLog = catchAsync(async (req, res) => {
+  const log = await fuelService.updateFuelLog(req.params.id, req.body, req.user.id);
+  sendSuccess(res, 200, 'Fuel log updated successfully', log);
+});
 
-    if (!vehicle || !liters || !cost || !date) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide vehicle, liters, cost, and date.',
-      });
-    }
-
-    // Verify vehicle exists
-    const vehicleExists = await Vehicle.findById(vehicle);
-    if (!vehicleExists) {
-      return res.status(404).json({
-        success: false,
-        message: 'Vehicle not found',
-      });
-    }
-
-    const newLog = await FuelLog.create({
-      vehicle,
-      trip: trip || undefined,
-      liters,
-      cost,
-      date,
-    });
-
-    const populatedLog = await FuelLog.findById(newLog._id)
-      .populate('vehicle', 'registrationNumber name type')
-      .populate('trip', 'source destination status');
-
-    res.status(201).json({
-      success: true,
-      data: populatedLog,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Delete a fuel log entry
-// @route   DELETE /api/fuel/:id
-// @access  Private (FleetManager only)
-const deleteFuelLog = async (req, res, next) => {
-  try {
-    const log = await FuelLog.findById(req.params.id);
-    if (!log) {
-      return res.status(404).json({
-        success: false,
-        message: 'Fuel log entry not found',
-      });
-    }
-
-    await log.deleteOne();
-
-    res.status(200).json({
-      success: true,
-      message: 'Fuel log entry removed successfully',
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+const deleteFuelLog = catchAsync(async (req, res) => {
+  await fuelService.deleteFuelLog(req.params.id);
+  sendSuccess(res, 200, 'Fuel log deleted successfully');
+});
 
 module.exports = {
-  getFuelLogs,
   createFuelLog,
+  getFuelLogs,
+  getFuelLogById,
+  updateFuelLog,
   deleteFuelLog,
 };

@@ -5,6 +5,7 @@ const Maintenance = require('../models/Maintenance');
 const User = require('../models/User');
 const Vehicle = require('../models/Vehicle');
 const vehicleService = require('./vehicle.service');
+const expenseService = require('./expense.service');
 const AppError = require('../utils/AppError');
 
 const generateMaintenanceNumber = async () => {
@@ -193,6 +194,19 @@ const updateMaintenanceStatus = async (id, newStatus, notes, updaterId) => {
     // Optionally sync odometer if provided during completion
     if (mnt.odometerReading && mnt.odometerReading > vehicle.odometer) {
       await vehicleService.updateVehicle(vehicle._id, { odometer: mnt.odometerReading });
+    }
+
+    // Automatically spawn a MAINTENANCE Expense record (Phase 5 decision)
+    if (mnt.actualCost > 0) {
+      await expenseService.spawnAutoExpense({
+        vehicleId: mnt.vehicleId,
+        maintenanceId: mnt._id,
+        expenseCategory: 'MAINTENANCE',
+        title: `Maintenance - ${mnt.maintenanceNumber}`,
+        description: `Maintenance job completed by ${updaterId}`,
+        amount: mnt.actualCost,
+        expenseDate: mnt.completedAt,
+      }, updaterId);
     }
   }
 

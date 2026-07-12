@@ -2,18 +2,50 @@ const express = require('express');
 const router = express.Router();
 const fuelController = require('../controllers/fuelController');
 const authMiddleware = require('../middleware/authMiddleware');
-const roleMiddleware = require('../middleware/roleMiddleware');
+const authorize = require('../middleware/roleMiddleware');
+const validate = require('../middleware/validate');
+const { ROLES } = require('../utils/constants');
+const {
+  createFuelLogSchema,
+  updateFuelLogSchema,
+  idSchema
+} = require('../validators/finance.validator');
 
-// All routes are private
 router.use(authMiddleware);
 
-// GET / - list fuel logs (all roles)
-router.get('/', fuelController.getFuelLogs);
+router.get(
+  '/',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST, ROLES.SAFETY_OFFICER),
+  fuelController.getFuelLogs
+);
 
-// POST / - create fuel log (Driver / FleetManager)
-router.post('/', roleMiddleware(['Driver', 'FleetManager']), fuelController.createFuelLog);
+router.get(
+  '/:id',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST, ROLES.SAFETY_OFFICER),
+  validate(idSchema, 'params'),
+  fuelController.getFuelLogById
+);
 
-// DELETE /:id - delete fuel log (FleetManager only)
-router.delete('/:id', roleMiddleware(['FleetManager']), fuelController.deleteFuelLog);
+router.post(
+  '/',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.DRIVER),
+  validate(createFuelLogSchema),
+  fuelController.createFuelLog
+);
+
+router.put(
+  '/:id',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER),
+  validate(idSchema, 'params'),
+  validate(updateFuelLogSchema),
+  fuelController.updateFuelLog
+);
+
+router.delete(
+  '/:id',
+  authorize(ROLES.ADMIN),
+  validate(idSchema, 'params'),
+  fuelController.deleteFuelLog
+);
 
 module.exports = router;

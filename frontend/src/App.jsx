@@ -20,10 +20,14 @@ import TripsDashboardPage from './features/trips/pages/TripsDashboardPage';
 import TripListPage from './features/trips/pages/TripListPage';
 import CreateTripPage from './features/trips/pages/CreateTripPage';
 
-// Maintenance Feature Pages
+// Maintenance Pages
 import MaintenanceDashboardPage from './features/maintenance/pages/MaintenanceDashboardPage';
 import MaintenanceListPage from './features/maintenance/pages/MaintenanceListPage';
 import CreateMaintenancePage from './features/maintenance/pages/CreateMaintenancePage';
+
+// Finance Pages
+import FuelLogsPage from './features/fuel/pages/FuelLogsPage';
+import ExpenseListPage from './features/expenses/pages/ExpenseListPage';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -76,6 +80,15 @@ const App = () => {
                 <Route index element={<MaintenanceDashboardPage />} />
                 <Route path="list" element={<MaintenanceListPage />} />
                 <Route path="new" element={<CreateMaintenancePage />} />
+              </Route>
+
+              {/* Finance Routes */}
+              <Route path="fuel">
+                <Route index element={<FuelLogsPage />} />
+              </Route>
+              
+              <Route path="expenses">
+                <Route index element={<ExpenseListPage />} />
               </Route>
 
               <Route path="drivers" element={<DriverListPage />} />
