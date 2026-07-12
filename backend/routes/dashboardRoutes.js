@@ -48,5 +48,19 @@ router.get(
   tripDashboardController.getAnalytics
 );
 
+// --- MAINTENANCE DASHBOARD ---
+const maintenanceDashboardController = require('../controllers/maintenanceDashboardController');
+
+router.get(
+  '/maintenance/summary',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST),
+  maintenanceDashboardController.getSummary
+);
+
+router.get(
+  '/maintenance/analytics',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST),
+  maintenanceDashboardController.getAnalytics
+);
 
 module.exports = router;
