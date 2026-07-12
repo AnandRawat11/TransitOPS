@@ -1,14 +1,29 @@
-// TODO: implement by Deepika
+/**
+ * dashboardController.js - Dashboard endpoints for TransitOps.
+ */
+const vehicleService = require('../services/vehicle.service');
+const { sendSuccess } = require('../utils/apiResponse');
+const catchAsync = require('../utils/catchAsync');
 
-const getStats = async (req, res, next) => {
-  try {
-    // TODO: implement
-    res.status(200).json({ success: true, message: 'getStats not implemented yet' });
-  } catch (error) {
-    next(error);
-  }
-};
+/**
+ * GET /api/v1/dashboard/summary
+ * KPI summary metrics.
+ */
+const getSummary = catchAsync(async (req, res) => {
+  const summary = await vehicleService.getFleetSummary();
+  sendSuccess(res, 200, 'Fleet summary retrieved', summary);
+});
+
+/**
+ * GET /api/v1/dashboard/analytics
+ * Data for charts and distributions.
+ */
+const getAnalytics = catchAsync(async (req, res) => {
+  const analytics = await vehicleService.getFleetAnalytics();
+  sendSuccess(res, 200, 'Fleet analytics retrieved', analytics);
+});
 
 module.exports = {
-  getStats,
+  getSummary,
+  getAnalytics
 };

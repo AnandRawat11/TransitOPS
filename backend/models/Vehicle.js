@@ -128,6 +128,20 @@ const VehicleSchema = new mongoose.Schema(
       default: null,
     },
 
+    statusHistory: [
+      {
+        status: {
+          type: String,
+          enum: VEHICLE_STATUS_ARRAY,
+        },
+        changedAt: {
+          type: Date,
+          default: Date.now,
+        },
+        // Optional: track who made the change later via user ObjectId
+      }
+    ],
+
     isActive: {
       type: Boolean,
       default: true,
@@ -135,6 +149,8 @@ const VehicleSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
@@ -146,6 +162,28 @@ VehicleSchema.index({ currentStatus: 1, isActive: 1 });
 VehicleSchema.index({ vehicleType: 1 });
 VehicleSchema.index({ region: 1 });
 VehicleSchema.index({ fuelType: 1 });
+
+// ──────────────────────────────────────
+// Virtuals
+// ──────────────────────────────────────
+
+const calculateDays = (date) => {
+  if (!date) return null;
+  const diffTime = new Date(date).getTime() - new Date().getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
+VehicleSchema.virtual('insuranceExpiresInDays').get(function () {
+  return calculateDays(this.insuranceExpiry);
+});
+
+VehicleSchema.virtual('fitnessExpiresInDays').get(function () {
+  return calculateDays(this.fitnessExpiry);
+});
+
+VehicleSchema.virtual('pollutionExpiresInDays').get(function () {
+  return calculateDays(this.pollutionExpiry);
+});
 
 // ──────────────────────────────────────
 // JSON Transform

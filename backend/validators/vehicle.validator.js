@@ -120,6 +120,13 @@ const updateVehicleSchema = Joi.object({
     'object.min': 'At least one field must be provided for update',
   });
 
+const vehicleStatusSchema = Joi.object({
+  status: Joi.string().valid(...VEHICLE_STATUS_ARRAY).required().messages({
+    'any.only': `Status must be one of: ${VEHICLE_STATUS_ARRAY.join(', ')}`,
+    'any.required': 'Status is required'
+  })
+});
+
 const vehicleIdSchema = Joi.object({
   id: Joi.string().pattern(objectIdPattern).required().messages({
     'string.pattern.base': 'Invalid vehicle ID format',
@@ -130,5 +137,6 @@ const vehicleIdSchema = Joi.object({
 module.exports = {
   createVehicleSchema,
   updateVehicleSchema,
+  vehicleStatusSchema,
   vehicleIdSchema,
 };

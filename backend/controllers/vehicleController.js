@@ -12,11 +12,26 @@ const catchAsync = require('../utils/catchAsync');
 
 /**
  * GET /api/v1/vehicles
- * Retrieve a list of active vehicles. Supports query filtering.
+ * Retrieve a paginated list of vehicles. Supports query filtering and search.
  */
 const getVehicles = catchAsync(async (req, res) => {
-  const vehicles = await vehicleService.getAllVehicles(req.query);
-  sendSuccess(res, 200, 'Vehicles retrieved successfully', vehicles);
+  const result = await vehicleService.getAllVehicles(req.query);
+  // Send the data and pagination object directly
+  res.status(200).json({
+    success: true,
+    message: 'Vehicles retrieved successfully',
+    data: result.data,
+    pagination: result.pagination
+  });
+});
+
+/**
+ * GET /api/v1/vehicles/available
+ * Retrieve all available vehicles sorted by lowest odometer.
+ */
+const getAvailableVehicles = catchAsync(async (req, res) => {
+  const vehicles = await vehicleService.getAvailableVehicles(req.query);
+  sendSuccess(res, 200, 'Available vehicles retrieved successfully', vehicles);
 });
 
 /**
@@ -47,6 +62,15 @@ const updateVehicle = catchAsync(async (req, res) => {
 });
 
 /**
+ * PATCH /api/v1/vehicles/:id/status
+ * Update the status of a vehicle with state transitions.
+ */
+const updateVehicleStatus = catchAsync(async (req, res) => {
+  const vehicle = await vehicleService.updateVehicleStatus(req.params.id, req.body.status);
+  sendSuccess(res, 200, 'Vehicle status updated successfully', vehicle);
+});
+
+/**
  * DELETE /api/v1/vehicles/:id
  * Soft-delete a vehicle (mark as inactive and retired).
  */
@@ -57,8 +81,10 @@ const deleteVehicle = catchAsync(async (req, res) => {
 
 module.exports = {
   getVehicles,
+  getAvailableVehicles,
   getVehicleById,
   createVehicle,
   updateVehicle,
+  updateVehicleStatus,
   deleteVehicle,
 };
