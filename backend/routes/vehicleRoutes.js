@@ -9,19 +9,27 @@ const {
   createVehicleSchema,
   updateVehicleSchema,
   vehicleIdSchema,
+  vehicleStatusSchema
 } = require('../validators/vehicle.validator');
 
 // All vehicle routes require authentication
 router.use(authMiddleware);
 
-// GET /api/v1/vehicles - list all (Admin, Fleet Manager, Safety Officer)
+// GET /api/v1/vehicles/available - get available vehicles (Trips module support)
+router.get(
+  '/available',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.SAFETY_OFFICER),
+  vehicleController.getAvailableVehicles
+);
+
+// GET /api/v1/vehicles - list all
 router.get(
   '/',
   authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.SAFETY_OFFICER),
   vehicleController.getVehicles
 );
 
-// GET /api/v1/vehicles/:id - get details (Admin, Fleet Manager, Safety Officer)
+// GET /api/v1/vehicles/:id - get details
 router.get(
   '/:id',
   authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER, ROLES.SAFETY_OFFICER),
@@ -44,6 +52,15 @@ router.put(
   validate(vehicleIdSchema, 'params'),
   validate(updateVehicleSchema),
   vehicleController.updateVehicle
+);
+
+// PATCH /api/v1/vehicles/:id/status - update status
+router.patch(
+  '/:id/status',
+  authorize(ROLES.ADMIN, ROLES.FLEET_MANAGER),
+  validate(vehicleIdSchema, 'params'),
+  validate(vehicleStatusSchema),
+  vehicleController.updateVehicleStatus
 );
 
 // DELETE /api/v1/vehicles/:id - delete (Admin only)
