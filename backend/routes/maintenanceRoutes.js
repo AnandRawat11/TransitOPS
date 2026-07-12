@@ -16,5 +16,7 @@ router.put('/:id', maintenanceController.updateMaintenanceLog);
 
 // DELETE /:id - delete log
 router.delete('/:id', maintenanceController.deleteMaintenanceLog);
+// PUT /:id/close - close maintenance
+router.put('/:id/close', maintenanceController.closeMaintenance);
 
 module.exports = router;

@@ -16,5 +16,13 @@ router.put('/:id', tripController.updateTrip);
 
 // DELETE /:id - delete trip
 router.delete('/:id', tripController.deleteTrip);
+// PUT /:id/dispatch - dispatch trip
+router.put('/:id/dispatch', tripController.dispatchTrip);
+
+// PUT /:id/complete - complete trip
+router.put('/:id/complete', tripController.completeTrip);
+
+// PUT /:id/cancel - cancel trip
+router.put('/:id/cancel', tripController.cancelTrip);
 
 module.exports = router;

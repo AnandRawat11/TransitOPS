@@ -1,93 +1,58 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+/**
+ * authController.js - Authentication controller for TransitOps.
+ *
+ * Handles incoming HTTP requests for authentication, delegating
+ * business logic to the auth.service.
+ *
+ * All functions are wrapped in catchAsync, so unhandled promise
+ * rejections are automatically forwarded to the global error handler.
+ */
+const authService = require('../services/auth.service');
+const { sendSuccess } = require('../utils/apiResponse');
+const catchAsync = require('../utils/catchAsync');
 
-// POST /api/auth/login
-const login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
+/**
+ * POST /api/v1/auth/register
+ * Register a new user and return a JWT token.
+ */
+const register = catchAsync(async (req, res) => {
+  const { user, token } = await authService.registerUser(req.body);
+  
+  sendSuccess(res, 201, 'User registered successfully', {
+    token,
+    user,
+  });
+});
 
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Please provide email and password' });
-    }
+/**
+ * POST /api/v1/auth/login
+ * Authenticate a user and return a JWT token.
+ */
+const login = catchAsync(async (req, res) => {
+  const { email, password } = req.body;
+  const { user, token } = await authService.loginUser(email, password);
+  
+  sendSuccess(res, 200, 'Login successful', {
+    token,
+    user,
+  });
+});
 
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET || 'supersecretjwtkey12345',
-      { expiresIn: '1d' }
-    );
-
-    res.status(200).json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// POST /api/auth/register
-const register = async (req, res, next) => {
-  try {
-    const { name, email, password, role } = req.body;
-
-    if (!email || !password || !role) {
-      return res.status(400).json({ success: false, message: 'Please provide email, password, and role' });
-    }
-
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ success: false, message: 'User already exists' });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role,
-    });
-
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET || 'supersecretjwtkey12345',
-      { expiresIn: '1d' }
-    );
-
-    res.status(201).json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+/**
+ * GET /api/v1/auth/me
+ * Get the currently authenticated user's profile.
+ * Requires authMiddleware to run first.
+ */
+const getMe = catchAsync(async (req, res) => {
+  // req.user is populated by authMiddleware.
+  // We use toJSON() to strip the password if it somehow wasn't already stripped.
+  sendSuccess(res, 200, 'User profile retrieved successfully', {
+    user: req.user.toJSON ? req.user.toJSON() : req.user,
+  });
+});
 
 module.exports = {
-  login,
   register,
+  login,
+  getMe,
 };

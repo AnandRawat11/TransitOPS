@@ -1,22 +1,54 @@
+/**
+ * server.js - Application entry point for TransitOps backend.
+ *
+ * Configures Express, mounts middleware (Helmet, Morgan, CORS),
+ * establishes DB connection, mounts route handlers, and sets up
+ * global error handling.
+ */
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db');
-const errorHandler = require('./middleware/errorHandler');
+const helmet = require('helmet');
+const morgan = require('morgan');
 
-// Load environment variables
-dotenv.config();
+const config = require('./config/env');
+const connectDB = require('./config/db');
+const logger = require('./utils/logger');
+const { sendSuccess } = require('./utils/apiResponse');
+
+const errorHandler = require('./middleware/errorHandler');
+const notFound = require('./middleware/notFound');
+
+// ──────────────────────────────────────
+// Initialization
+// ──────────────────────────────────────
 
 // Connect to Database
 connectDB();
 
 const app = express();
 
-// Middleware
+// ──────────────────────────────────────
+// Global Middleware
+// ──────────────────────────────────────
+
+// Security headers
+app.use(helmet());
+
+// Enable CORS for frontend
 app.use(cors());
+
+// Parse incoming JSON payloads
 app.use(express.json());
 
-// Import Routes
+// Request logging (development only)
+if (!config.isProduction) {
+  app.use(morgan('dev'));
+}
+
+// ──────────────────────────────────────
+// Route Mounting
+// ──────────────────────────────────────
+
 const authRoutes = require('./routes/authRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const driverRoutes = require('./routes/driverRoutes');
@@ -27,29 +59,76 @@ const fuelRoutes = require('./routes/fuelRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 
-// Mount Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/vehicles', vehicleRoutes);
-app.use('/api/drivers', driverRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/trips', tripRoutes);
-app.use('/api/maintenance', maintenanceRoutes);
-app.use('/api/fuel', fuelRoutes);
-app.use('/api/expenses', expenseRoutes);
-app.use('/api/reports', reportRoutes);
+const API_PREFIX = '/api/v1';
+
+app.use(`${API_PREFIX}/auth`, authRoutes);
+app.use(`${API_PREFIX}/vehicles`, vehicleRoutes);
+app.use(`${API_PREFIX}/drivers`, driverRoutes);
+app.use(`${API_PREFIX}/dashboard`, dashboardRoutes);
+app.use(`${API_PREFIX}/trips`, tripRoutes);
+app.use(`${API_PREFIX}/maintenance`, maintenanceRoutes);
+app.use(`${API_PREFIX}/fuel`, fuelRoutes);
+app.use(`${API_PREFIX}/expenses`, expenseRoutes);
+app.use(`${API_PREFIX}/reports`, reportRoutes);
+
+// ──────────────────────────────────────
+// Base & Health Routes
+// ──────────────────────────────────────
 
 // Root Endpoint
 app.get('/', (req, res) => {
-  res.json({ message: 'TransitOps REST API is running' });
+  sendSuccess(res, 200, 'TransitOps REST API is running');
 });
 
-// Error Handler Middleware (MUST be at the end)
+// Health Check Endpoint
+app.get('/api/health', (req, res) => {
+  // Ideally, also check db state here, but simple is fine for now
+  res.status(200).json({
+    success: true,
+    status: 'UP',
+    database: 'CONNECTED',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ──────────────────────────────────────
+// Error Handling
+// ──────────────────────────────────────
+
+// 404 Handler for unmatched routes
+app.use(notFound);
+
+// Global Error Handler (MUST be the last middleware)
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+// ──────────────────────────────────────
+// Server Startup & Graceful Shutdown
+// ──────────────────────────────────────
 
-const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+const server = app.listen(config.port, () => {
+  logger.info(`Server is running in ${config.nodeEnv} mode on port ${config.port}`);
+});
+
+// Handle Unhandled Rejections (e.g., failed DB connection outside express)
+process.on('unhandledRejection', (err) => {
+  logger.error('UNHANDLED REJECTION! Shutting down...', err);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+// Handle Uncaught Exceptions (e.g., synchronous bugs)
+process.on('uncaughtException', (err) => {
+  logger.error('UNCAUGHT EXCEPTION! Shutting down...', err);
+  process.exit(1);
+});
+
+// Graceful Shutdown for SIGTERM (e.g., from Docker/Render)
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    logger.info('Process terminated.');
+  });
 });
 
 module.exports = server;
