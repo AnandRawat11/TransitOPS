@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// GET /stats - get dashboard stats - Deepika to implement
-router.get('/stats', dashboardController.getStats);
+// Apply auth middleware
+router.use(authMiddleware);
+
+// GET /api/dashboard/kpis
+router.get('/kpis', dashboardController.getKpis);
 
 module.exports = router;

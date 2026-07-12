@@ -68,33 +68,51 @@ const vehicles = [
 ];
 
 const drivers = [
+  // 3 valid available drivers
   {
-    name: 'John Doe',
-    licenseNumber: 'LIC-1001',
-    licenseCategory: 'Class A',
-    licenseExpiryDate: new Date('2028-12-31'),
-    contactNumber: '+15550101',
-    safetyScore: 98,
-    status: 'Available',
+    name: 'Alice Driver', employeeId: 'EMP-001', phone: '555-0101', licenseNumber: 'LIC-001',
+    licenseCategory: 'Heavy', licenseExpiryDate: new Date('2028-12-31'), safetyScore: 100, status: 'Available'
   },
   {
-    name: 'Jane Smith',
-    licenseNumber: 'LIC-1002',
-    licenseCategory: 'Class A',
-    licenseExpiryDate: new Date('2027-06-30'),
-    contactNumber: '+15550102',
-    safetyScore: 95,
-    status: 'On Trip',
+    name: 'Bob Driver', employeeId: 'EMP-002', phone: '555-0102', licenseNumber: 'LIC-002',
+    licenseCategory: 'Medium', licenseExpiryDate: new Date('2029-05-15'), safetyScore: 95, status: 'Available'
   },
   {
-    name: 'Bob Johnson',
-    licenseNumber: 'LIC-1003',
-    licenseCategory: 'Class B',
-    licenseExpiryDate: new Date('2026-05-15'),
-    contactNumber: '+15550103',
-    safetyScore: 88,
-    status: 'Off Duty',
+    name: 'Charlie Driver', employeeId: 'EMP-003', phone: '555-0103', licenseNumber: 'LIC-003',
+    licenseCategory: 'Commercial', licenseExpiryDate: new Date('2027-11-20'), safetyScore: 98, status: 'Available'
   },
+  // 2 expiring drivers (within 30 days) - Setting to 15 days from now
+  {
+    name: 'Dave Expiring', employeeId: 'EMP-004', phone: '555-0104', licenseNumber: 'LIC-004',
+    licenseCategory: 'Light', licenseExpiryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), safetyScore: 90, status: 'Available'
+  },
+  {
+    name: 'Eve Expiring', employeeId: 'EMP-005', phone: '555-0105', licenseNumber: 'LIC-005',
+    licenseCategory: 'Medium', licenseExpiryDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000), safetyScore: 92, status: 'Off Duty'
+  },
+  // 2 expired drivers
+  {
+    name: 'Frank Expired', employeeId: 'EMP-006', phone: '555-0106', licenseNumber: 'LIC-006',
+    licenseCategory: 'Heavy', licenseExpiryDate: new Date('2023-01-01'), safetyScore: 85, status: 'Available'
+  },
+  {
+    name: 'Grace Expired', employeeId: 'EMP-007', phone: '555-0107', licenseNumber: 'LIC-007',
+    licenseCategory: 'Commercial', licenseExpiryDate: new Date('2024-05-15'), safetyScore: 88, status: 'Off Duty'
+  },
+  // 2 on trip drivers
+  {
+    name: 'Hank OnTrip', employeeId: 'EMP-008', phone: '555-0108', licenseNumber: 'LIC-008',
+    licenseCategory: 'Heavy', licenseExpiryDate: new Date('2030-01-01'), safetyScore: 100, status: 'On Trip'
+  },
+  {
+    name: 'Ivy OnTrip', employeeId: 'EMP-009', phone: '555-0109', licenseNumber: 'LIC-009',
+    licenseCategory: 'Commercial', licenseExpiryDate: new Date('2029-01-01'), safetyScore: 99, status: 'On Trip'
+  },
+  // 1 suspended driver
+  {
+    name: 'Jack Suspended', employeeId: 'EMP-010', phone: '555-0110', licenseNumber: 'LIC-010',
+    licenseCategory: 'Medium', licenseExpiryDate: new Date('2028-01-01'), safetyScore: 40, status: 'Suspended'
+  }
 ];
 
 const seedDB = async () => {
