@@ -10,6 +10,8 @@ import {
   Fuel,
   BarChart3,
   LogOut,
+  PieChart,
+  Settings,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -60,11 +62,26 @@ const Sidebar = () => {
       icon: BarChart3,
       allowedRoles: ['FleetManager', 'FinancialAnalyst'],
     },
+    {
+      path: '/analytics',
+      label: 'Analytics',
+      icon: PieChart,
+      allowedRoles: ['FleetManager', 'FinancialAnalyst', 'SafetyOfficer'],
+    },
+    {
+      path: '/settings',
+      label: 'Settings',
+      icon: Settings,
+      allowedRoles: ['FleetManager', 'Driver', 'SafetyOfficer', 'FinancialAnalyst'],
+    },
   ];
 
+  const filteredNavItems = navItems; // Temporarily show all items for UI review
+  /* 
   const filteredNavItems = navItems.filter((item) =>
     item.allowedRoles.includes(role)
   );
+  */
 
   return (
     <aside className="fixed bottom-0 left-0 top-0 z-20 flex w-64 flex-col border-r border-slate-800 bg-slate-900 text-slate-300">

@@ -153,6 +153,10 @@ const TripSchema = new mongoose.Schema(
       ref: 'User',
       default: null,
     },
+    revenue: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
